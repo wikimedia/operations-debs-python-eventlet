@@ -28,8 +28,8 @@ Build-Depends-Indep: python-dnspython (>= 1.14.0),
                      python3-openssl (>= 16.0.0),
                      python3-zmq (>= 13.1.0),
 Standards-Version: 3.9.8
-Vcs-Browser: https://git.openstack.org/cgit/openstack/deb-python-eventlet
-Vcs-Git: https://git.openstack.org/openstack/deb-python-eventlet -b debian/newton
+Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/python-eventlet.git/
+Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/python-eventlet.git
 Homepage: http://eventlet.net
 
 Package: python-eventlet
