@@ -1,4 +1,4 @@
-python-eventlet (0.19.0-7) UNRELEASED; urgency=medium
+python-eventlet (0.19.0-7) unstable; urgency=medium
 
   * Maintainer: DPMT team
   * Vcs-* move to DPMT
@@ -9,7 +9,7 @@ python-eventlet (0.19.0-7) UNRELEASED; urgency=medium
   * Use pybuild
   * Remove B-D on openstack-pkg-tools, not needed anymore
 
- -- Ondřej Nový <onovy@debian.org>  Fri, 04 Aug 2017 21:47:45 +0200
+ -- Ondřej Nový <onovy@debian.org>  Fri, 04 Aug 2017 22:58:55 +0200
 
 python-eventlet (0.19.0-6) unstable; urgency=medium
 
