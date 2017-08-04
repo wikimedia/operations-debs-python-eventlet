@@ -6,6 +6,7 @@ python-eventlet (0.19.0-7) UNRELEASED; urgency=medium
     - Use https in format URL
     - Added myself for Debian part
   * Standards-Version is 4.0.0.4 now
+  * Use pybuild
 
  -- Ondřej Nový <onovy@debian.org>  Fri, 04 Aug 2017 21:47:45 +0200
 
