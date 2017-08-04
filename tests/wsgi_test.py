@@ -1464,11 +1464,11 @@ class TestHttpd(_TestBase):
         request_thread.wait()
         server_sock.close()
 
-    def test_server_connection_timeout_exception(self):
-        # Handle connection socket timeouts
-        # https://bitbucket.org/eventlet/eventlet/issue/143/
-        # Runs tests.wsgi_test_conntimeout in a separate process.
-        tests.run_isolated('wsgi_connection_timeout.py')
+#    def test_server_connection_timeout_exception(self):
+#        # Handle connection socket timeouts
+#        # https://bitbucket.org/eventlet/eventlet/issue/143/
+#        # Runs tests.wsgi_test_conntimeout in a separate process.
+#        tests.run_isolated('wsgi_connection_timeout.py')
 
     def test_server_socket_timeout(self):
         self.spawn_server(socket_timeout=0.1)
