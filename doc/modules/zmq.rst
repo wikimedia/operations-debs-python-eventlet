@@ -15,7 +15,6 @@
 
 .. autoclass:: Socket
     :show-inheritance:
-    :inherited-members:
 
     .. automethod:: recv
 
