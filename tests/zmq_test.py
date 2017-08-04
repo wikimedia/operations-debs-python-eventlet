@@ -448,7 +448,7 @@ class TestUpstreamDownStream(tests.LimitedTestCase):
         self.sockets.append(sock)
         sock.bind_to_random_port("tcp://127.0.0.1")
         sleep()
-        tests.check_idle_cpu_usage(0.2, 0.1)
+        tests.check_idle_cpu_usage(0.2, 0.2)
 
     @tests.skip_unless(zmq_supported)
     def test_cpu_usage_after_pub_send_or_dealer_recv(self):
@@ -460,14 +460,14 @@ class TestUpstreamDownStream(tests.LimitedTestCase):
         sub.setsockopt(zmq.SUBSCRIBE, b"")
         sleep()
         pub.send(b'test_send')
-        tests.check_idle_cpu_usage(0.2, 0.1)
+        tests.check_idle_cpu_usage(0.2, 0.2)
 
         sender, receiver, _port = self.create_bound_pair(zmq.DEALER, zmq.DEALER)
         sleep()
         sender.send(b'test_recv')
         msg = receiver.recv()
         self.assertEqual(msg, b'test_recv')
-        tests.check_idle_cpu_usage(0.2, 0.1)
+        tests.check_idle_cpu_usage(0.2, 0.2)
 
 
 class TestQueueLock(tests.LimitedTestCase):
