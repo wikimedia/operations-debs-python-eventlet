@@ -1,0 +1,56 @@
+language: python
+python: 2.7
+env:
+  matrix:
+    - TOX_ENV=pep8
+    - TOX_ENV=py26-epolls
+    - TOX_ENV=py26-poll
+    - TOX_ENV=py26-selects
+    - TOX_ENV=py27-dns
+    - TOX_ENV=py27-epolls
+    - TOX_ENV=py27-poll
+    - TOX_ENV=py27-selects
+    - TOX_ENV=py33-epolls
+    - TOX_ENV=py33-poll
+    - TOX_ENV=py33-selects
+    - TOX_ENV=py34-dns
+    - TOX_ENV=py34-epolls
+    - TOX_ENV=py34-poll
+    - TOX_ENV=py34-selects
+    - TOX_ENV=pypy-dns
+    - TOX_ENV=pypy-epolls
+    - TOX_ENV=pypy-poll
+    - TOX_ENV=pypy-selects
+matrix:
+  fast_finish: true
+  allow_failures:
+    - env: TOX_ENV=pypy-dns
+    - env: TOX_ENV=pypy-epolls
+    - env: TOX_ENV=pypy-poll
+    - env: TOX_ENV=pypy-selects
+cache:
+  apt: true
+  ccache: true
+  pip: true
+  directories:
+    - $HOME/.cache
+addons:
+  apt_packages:
+    - ccache
+    - libmysqlclient-dev
+    - libpq-dev
+    - libssl-dev
+    - libzmq3-dev
+install:
+  - pip install --upgrade pip setuptools tox virtualenv
+before_script:
+  - "export EVENTLET_DB_TEST_AUTH='{\"psycopg2\": {\"user\": \"postgres\"}, \"MySQLdb\": {\"passwd\": \"\", \"host\": \"localhost\", \"user\": \"root\"}}'"
+  - "export PATH=/usr/lib/ccache:$PATH"
+script:
+  - tox -v -v -e $TOX_ENV
+after_failure:
+  - for X in .tox/$TOX_ENV/log/*; do echo "$X\n"; cat "$X"; echo "\n\n"; done
+  - echo "pip.log\n"; cat $HOME/.pip/pip.log
+notifications:
+  slack: eventlet-net:OYrQ1JE3hdTD78yQY1yZJnnc
+sudo: false
