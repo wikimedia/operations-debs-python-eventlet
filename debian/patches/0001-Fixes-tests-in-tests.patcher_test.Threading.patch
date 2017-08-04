@@ -1,11 +1,19 @@
-Description: Fixes tests in tests.patcher_test.Threading
-Author: Thomas Goirand <zigo@debian.org>
+From 1a01f1bbff3de9a571cc433b1ed7684afb71005d Mon Sep 17 00:00:00 2001
+From: Thomas Goirand <zigo@debian.org>
+Date: Fri, 4 Aug 2017 21:47:13 +0200
+Subject: Fixes tests in tests.patcher_test.Threading
+
 Forwarded: no
 Last-Update: 2014-09-07
+---
+ tests/patcher_test.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+diff --git a/tests/patcher_test.py b/tests/patcher_test.py
+index 0e3c0cf..ea7b393 100644
 --- a/tests/patcher_test.py
 +++ b/tests/patcher_test.py
-@@ -327,7 +327,7 @@
+@@ -327,7 +327,7 @@ print(len(_threading._active))
          self.assertEqual(len(lines), 4, "\n".join(lines))
          assert lines[0].startswith('<Thread'), lines[0]
          assert lines[1] == '1', lines
@@ -14,7 +22,7 @@ Last-Update: 2014-09-07
  
      def test_threading(self):
          new_mod = """import eventlet
-@@ -358,7 +358,7 @@
+@@ -358,7 +358,7 @@ print(len(threading._active))
  """
          self.write_to_tempfile("newmod", new_mod)
          output, lines = self.launch_subprocess('newmod')

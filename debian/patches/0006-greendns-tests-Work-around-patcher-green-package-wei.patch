@@ -1,7 +1,7 @@
-From e3e6789a40191613e48561fe10948e74240ab04a Mon Sep 17 00:00:00 2001
+From 597ed5ac64aa807edca90a3242d6f23ff2dea18a Mon Sep 17 00:00:00 2001
 From: Jakub Stasiak <jakub.stasiak@smarkets.com>
 Date: Wed, 18 May 2016 14:13:09 +0200
-Subject: [PATCH] greendns tests: Work around patcher/green package weirdness
+Subject: greendns tests: Work around patcher/green package weirdness
 
 The issue can be demonstrated by running the following piece of code:
 
@@ -58,9 +58,11 @@ This patch is contributed by Smarkets Limited.
  tests/greendns_test.py | 7 +------
  1 file changed, 1 insertion(+), 6 deletions(-)
 
+diff --git a/tests/greendns_test.py b/tests/greendns_test.py
+index d8112c9..88a6518 100644
 --- a/tests/greendns_test.py
 +++ b/tests/greendns_test.py
-@@ -9,13 +9,8 @@
+@@ -9,13 +9,8 @@ import time
  import tests
  from tests import mock
  try:

@@ -1,4 +1,8 @@
-Description: Remove networking tests
+From 315f6ddb0c1d3206afe1b5008b84b3cf94683976 Mon Sep 17 00:00:00 2001
+From: Thomas Goirand <zigo@debian.org>
+Date: Fri, 4 Aug 2017 21:47:18 +0200
+Subject: Remove networking tests
+
  Upstream is attempting connection to 192.0.2.1 on port 80, and expects
  it to always timeout. However, some Debian users may well have a web
  server running on that IP address, meaning the test would fail in such
@@ -7,13 +11,18 @@ Description: Remove networking tests
  .
  Also, these tests have been failing for a reason on my arm64 builder,
  probably because it's a slow machine.
-Author: Thomas Goirand <zigo@debian.org>
 Forwarded: no
 Last-Update: 2016-07-19
+---
+ tests/greenio_test.py | 20 --------------------
+ tests/socket_test.py  |  7 -------
+ 2 files changed, 27 deletions(-)
 
---- python-eventlet-0.19.0.orig/tests/greenio_test.py
-+++ python-eventlet-0.19.0/tests/greenio_test.py
-@@ -74,18 +74,6 @@ class TestGreenSocket(tests.LimitedTestC
+diff --git a/tests/greenio_test.py b/tests/greenio_test.py
+index 99119b3..335b6cb 100644
+--- a/tests/greenio_test.py
++++ b/tests/greenio_test.py
+@@ -74,18 +74,6 @@ class TestGreenSocket(tests.LimitedTestCase):
              # 3.x io write to closed file-like pbject raises ValueError
              self.assertRaises(ValueError, fd.write, b'a')
  
@@ -32,7 +41,7 @@ Last-Update: 2016-07-19
      def test_accept_timeout(self):
          s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
          s.bind(('', 0))
-@@ -95,14 +83,6 @@ class TestGreenSocket(tests.LimitedTestC
+@@ -95,14 +83,6 @@ class TestGreenSocket(tests.LimitedTestCase):
          gs = greenio.GreenSocket(s)
          expect_socket_timeout(gs.accept)
  
@@ -47,8 +56,10 @@ Last-Update: 2016-07-19
      def test_recv_timeout(self):
          listener = greenio.GreenSocket(socket.socket())
          listener.bind(('', 0))
---- python-eventlet-0.19.0.orig/tests/socket_test.py
-+++ python-eventlet-0.19.0/tests/socket_test.py
+diff --git a/tests/socket_test.py b/tests/socket_test.py
+index 634e1f0..edbc21e 100644
+--- a/tests/socket_test.py
++++ b/tests/socket_test.py
 @@ -2,13 +2,6 @@ import eventlet
  from eventlet.green import socket
  

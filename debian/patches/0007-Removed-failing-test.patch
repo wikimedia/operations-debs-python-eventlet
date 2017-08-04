@@ -1,11 +1,19 @@
-Description: Removed failing test
+From 24925cd35edcad3348c7db97903908afc828f2a5 Mon Sep 17 00:00:00 2001
+From: Thomas Goirand <zigo@debian.org>
+Date: Fri, 4 Aug 2017 21:47:20 +0200
+Subject: Removed failing test
+
  This test fails in Sid.
-Author: Thomas Goirand <zigo@debian.org>
 Forwarded: no
 Last-Update: 2016-10-07
+---
+ tests/patcher_test.py | 22 ----------------------
+ 1 file changed, 22 deletions(-)
 
---- python-eventlet-0.19.0.orig/tests/patcher_test.py
-+++ python-eventlet-0.19.0/tests/patcher_test.py
+diff --git a/tests/patcher_test.py b/tests/patcher_test.py
+index ea7b393..28091c2 100644
+--- a/tests/patcher_test.py
++++ b/tests/patcher_test.py
 @@ -82,28 +82,6 @@ class ImportPatched(ProcessBase):
          assert 'eventlet.green.urllib' in lines[2], repr(output)
          assert 'eventlet.green.httplib' not in lines[2], repr(output)

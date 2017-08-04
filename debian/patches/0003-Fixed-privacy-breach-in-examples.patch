@@ -1,11 +1,20 @@
-Description: Fixed privacy breach in examples
+From 9f849e27d9226c153be6a24f0d70d8f3b21051c9 Mon Sep 17 00:00:00 2001
+From: Thomas Goirand <zigo@debian.org>
+Date: Fri, 4 Aug 2017 21:47:15 +0200
+Subject: Fixed privacy breach in examples
+
  Upstream is referencing external websites, we don't allow this.
-Author: Thomas Goirand <zigo@debian.org>
 Forwarded: no
 Last-Update: 2015-05-27
+---
+ examples/websocket.html      | 4 ++--
+ examples/websocket_chat.html | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- python-eventlet-0.17.4.orig/examples/websocket.html
-+++ python-eventlet-0.17.4/examples/websocket.html
+diff --git a/examples/websocket.html b/examples/websocket.html
+index cea6a20..952efce 100644
+--- a/examples/websocket.html
++++ b/examples/websocket.html
 @@ -3,8 +3,8 @@
  <head>
  <!-- idea and code swiped from 
@@ -17,8 +26,10 @@ Last-Update: 2015-05-27
  <script>
  window.onload = function() {
      var data = {};
---- python-eventlet-0.17.4.orig/examples/websocket_chat.html
-+++ python-eventlet-0.17.4/examples/websocket_chat.html
+diff --git a/examples/websocket_chat.html b/examples/websocket_chat.html
+index 9237532..2948591 100644
+--- a/examples/websocket_chat.html
++++ b/examples/websocket_chat.html
 @@ -1,7 +1,7 @@
  <!DOCTYPE html>
  <html>

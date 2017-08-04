@@ -1,13 +1,21 @@
-Description: Disable test_server_connection_timeout_exception()
+From cff26f9804dfd35fb006085f1e3ab9fa03693e2d Mon Sep 17 00:00:00 2001
+From: Thomas Goirand <zigo@debian.org>
+Date: Fri, 4 Aug 2017 21:47:23 +0200
+Subject: Disable test_server_connection_timeout_exception()
+
  As per the bug report, the test is non-deterministic. Therefore,
  remove it it.
-Author: Thomas Goirand <zigo@debian.org>
 Bug-Debian: https://bugs.debian.org/857893
 Forwarded: no
 Last-Update: 2017-03-16
+---
+ tests/wsgi_test.py | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- python-eventlet-0.19.0.orig/tests/wsgi_test.py
-+++ python-eventlet-0.19.0/tests/wsgi_test.py
+diff --git a/tests/wsgi_test.py b/tests/wsgi_test.py
+index 6b3c251..d651a35 100644
+--- a/tests/wsgi_test.py
++++ b/tests/wsgi_test.py
 @@ -1464,11 +1464,11 @@ class TestHttpd(_TestBase):
          request_thread.wait()
          server_sock.close()

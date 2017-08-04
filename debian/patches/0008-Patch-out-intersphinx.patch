@@ -1,12 +1,20 @@
-Description: Patch out intersphinx
+From e74c59dfa798a7b25dc1acf923d3c76079b879ac Mon Sep 17 00:00:00 2001
+From: Thomas Goirand <zigo@debian.org>
+Date: Fri, 4 Aug 2017 21:47:21 +0200
+Subject: Patch out intersphinx
+
  Avoids internet access during build
-Author: Thomas Goirand <zigo@debian.org>
 Bug-Debian: https://bugs.debian.org/840092
 Forwarded: no
 Last-Update: 2016-10-08
+---
+ doc/conf.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- python-eventlet-0.19.0.orig/doc/conf.py
-+++ python-eventlet-0.19.0/doc/conf.py
+diff --git a/doc/conf.py b/doc/conf.py
+index cda080f..5b7889d 100644
+--- a/doc/conf.py
++++ b/doc/conf.py
 @@ -23,7 +23,7 @@ import sys, os
  # Add any Sphinx extension module names here, as strings. They can be extensions
  # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
