@@ -74,18 +74,6 @@ class TestGreenSocket(tests.LimitedTestCase):
             # 3.x io write to closed file-like pbject raises ValueError
             self.assertRaises(ValueError, fd.write, b'a')
 
-    def test_connect_timeout(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(0.1)
-        gs = greenio.GreenSocket(s)
-
-        try:
-            expect_socket_timeout(gs.connect, ('192.0.2.1', 80))
-        except socket.error as e:
-            # unreachable is also a valid outcome
-            if not get_errno(e) in (errno.EHOSTUNREACH, errno.ENETUNREACH):
-                raise
-
     def test_accept_timeout(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.bind(('', 0))
@@ -94,14 +82,6 @@ class TestGreenSocket(tests.LimitedTestCase):
         s.settimeout(0.1)
         gs = greenio.GreenSocket(s)
         expect_socket_timeout(gs.accept)
-
-    def test_connect_ex_timeout(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(0.1)
-        gs = greenio.GreenSocket(s)
-        e = gs.connect_ex(('192.0.2.1', 80))
-        if e not in (errno.EHOSTUNREACH, errno.ENETUNREACH):
-            self.assertEqual(e, errno.EAGAIN)
 
     def test_recv_timeout(self):
         listener = greenio.GreenSocket(socket.socket())
