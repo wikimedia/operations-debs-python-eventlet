@@ -6,3 +6,6 @@ a635c555cd2c3f8d446d3874c1a90c98c221d331
 python-eventlet_0.19.0.orig.tar.xz
 17ecf0d714936f59b6fbe2862876bd3d379b3059
 241124
+debianTag="debian/%e%v"
+patchedTag="patched/%e%v"
+upstreamTag="upstream/%e%u"
