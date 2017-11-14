@@ -1,3 +1,19 @@
+python-eventlet (0.20.0-1) unstable; urgency=medium
+
+  * Revert changes from Ondřej Nový, keep the package in OpenStack, as it's
+    used only there in the whole of Debian.
+  * Ran wrap-and-sort -bast.
+  * Updated maintainer field.
+  * Updated VCS fields.
+  * New upstream release.
+  * Removed versions of (build-)depends after stretch release.
+  * Removed breaks+replaces after stretch release.
+  * Standards-Version is now 4.1.1.
+  * Refreshed and removed patches.
+  * Add remove-test_urllib-failing-in-py36.patch.
+
+ -- Thomas Goirand <zigo@debian.org>  Sun, 29 Oct 2017 20:10:01 +0000
+
 python-eventlet (0.19.0-7) unstable; urgency=medium
 
   * Maintainer: DPMT team
