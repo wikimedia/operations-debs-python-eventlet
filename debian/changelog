@@ -3,6 +3,7 @@ python-eventlet (0.20.0-2) UNRELEASED; urgency=medium
   * Move back the package to DPMT:
     - Update Vcs-Browser and Vcs-Git.
     - Update Maintainer: field.
+  * Add 0010-Fix-compilation-errors-when-installing-package-in-Py.patch.
 
  -- Thomas Goirand <zigo@debian.org>  Tue, 14 Nov 2017 22:24:16 +0100
 
