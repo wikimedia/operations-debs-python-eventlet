@@ -1,7 +1,7 @@
 Source: python-eventlet
 Section: python
 Priority: optional
-Maintainer: Debian OpenStack <openstack-devel@lists.alioth.debian.org>
+Maintainer: Debian Python Modules Team <python-modules-team@lists.alioth.debian.org>
 Uploaders:
  Thomas Goirand <zigo@debian.org>,
  Ondřej Nový <onovy@debian.org>,
@@ -30,8 +30,8 @@ Build-Depends-Indep:
  python3-openssl,
  python3-zmq,
 Standards-Version: 4.1.1
-Vcs-Browser: https://anonscm.debian.org/cgit/openstack/python/python-eventlet.git
-Vcs-Git: https://anonscm.debian.org/git/openstack/python/python-eventlet.git
+Vcs-Browser: https://anonscm.debian.org/cgit/python-modules/packages/python-eventlet.git/
+Vcs-Git: https://anonscm.debian.org/git/python-modules/packages/python-eventlet.git
 Homepage: http://eventlet.net
 
 Package: python-eventlet
