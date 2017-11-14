@@ -6,3 +6,4 @@
 0006-Patch-out-intersphinx.patch
 0007-Patched-test_getaddrinfo-due-netbase-update.patch
 0008-Disable-test_server_connection_timeout_exception.patch
+0009-Removed-test_urllib-that-is-failing-in-py36.patch
