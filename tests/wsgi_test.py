@@ -8,7 +8,6 @@ import socket
 import sys
 import tempfile
 import traceback
-import unittest
 
 import eventlet
 from eventlet import debug
@@ -710,6 +709,20 @@ class TestHttpd(_TestBase):
     def test_023_bad_content_length(self):
         sock = eventlet.connect(self.server_addr)
         sock.sendall(b'GET / HTTP/1.0\r\nHost: localhost\r\nContent-length: argh\r\n\r\n')
+        result = recvall(sock)
+        assert result.startswith(b'HTTP'), result
+        assert b'400 Bad Request' in result, result
+        assert b'500' not in result, result
+
+        sock = eventlet.connect(self.server_addr)
+        sock.sendall(b'GET / HTTP/1.0\r\nHost: localhost\r\nContent-length:\r\n\r\n')
+        result = recvall(sock)
+        assert result.startswith(b'HTTP'), result
+        assert b'400 Bad Request' in result, result
+        assert b'500' not in result, result
+
+        sock = eventlet.connect(self.server_addr)
+        sock.sendall(b'GET / HTTP/1.0\r\nHost: localhost\r\nContent-length: \r\n\r\n')
         result = recvall(sock)
         assert result.startswith(b'HTTP'), result
         assert b'400 Bad Request' in result, result
@@ -1502,18 +1515,33 @@ class TestHttpd(_TestBase):
         self.assertEqual(result.headers_original[random_case_header[0]], random_case_header[1])
 
     def test_log_unix_address(self):
+        def app(environ, start_response):
+            start_response('200 OK', [])
+            return ['\n{0}={1}\n'.format(k, v).encode() for k, v in environ.items()]
+
         tempdir = tempfile.mkdtemp('eventlet_test_log_unix_address')
-        path = ''
         try:
-            sock = eventlet.listen(tempdir + '/socket', socket.AF_UNIX)
-            path = sock.getsockname()
+            server_sock = eventlet.listen(tempdir + '/socket', socket.AF_UNIX)
+            path = server_sock.getsockname()
 
             log = six.StringIO()
-            self.spawn_server(sock=sock, log=log)
+            self.spawn_server(site=app, sock=server_sock, log=log)
             eventlet.sleep(0)  # need to enter server loop
             assert 'http:' + path in log.getvalue()
+
+            client_sock = eventlet.connect(path, family=socket.AF_UNIX)
+            client_sock.sendall(b'GET / HTTP/1.0\r\nHost: localhost\r\n\r\n')
+            result = read_http(client_sock)
+            client_sock.close()
+            assert '\nunix -' in log.getvalue()
         finally:
             shutil.rmtree(tempdir)
+
+        assert result.status == 'HTTP/1.1 200 OK', repr(result) + log.getvalue()
+        assert b'\nSERVER_NAME=unix\n' in result.body
+        assert b'\nSERVER_PORT=\n' in result.body
+        assert b'\nREMOTE_ADDR=unix\n' in result.body
+        assert b'\nREMOTE_PORT=\n' in result.body
 
     def test_headers_raw(self):
         def app(environ, start_response):
@@ -1527,6 +1555,22 @@ class TestHttpd(_TestBase):
         sock.close()
         assert result.status == 'HTTP/1.1 200 OK'
         assert result.body == b'Host: localhost\nx-ANY_k: one\nx-ANY_k: two'
+
+    def test_env_headers(self):
+        def app(environ, start_response):
+            start_response('200 OK', [])
+            return ['{0}: {1}\n'.format(*kv).encode() for kv in sorted(environ.items())
+                    if kv[0].startswith('HTTP_')]
+
+        self.spawn_server(site=app)
+        sock = eventlet.connect(self.server_addr)
+        sock.sendall(b'GET / HTTP/1.1\r\nHost: localhost\r\npath-info: foo\r\n'
+                     b'x-ANY_k: one\r\nhttp-x-ANY_k: two\r\n\r\n')
+        result = read_http(sock)
+        sock.close()
+        assert result.status == 'HTTP/1.1 200 OK', 'Received status {0!r}'.format(result.status)
+        assert result.body == (b'HTTP_HOST: localhost\nHTTP_HTTP_X_ANY_K: two\n'
+                               b'HTTP_PATH_INFO: foo\nHTTP_X_ANY_K: one\n')
 
 
 def read_headers(sock):
@@ -1787,7 +1831,3 @@ class TestChunkedInput(_TestBase):
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
 
         assert not got_signal, "caught alarm signal. infinite loop detected."
-
-
-if __name__ == '__main__':
-    unittest.main()

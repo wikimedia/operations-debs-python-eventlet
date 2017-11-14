@@ -191,18 +191,48 @@ class GreenSSLSocket(_original_sslsocket):
                     raise
 
     def recv(self, buflen=1024, flags=0):
+        return self._base_recv(buflen, flags, into=False)
+
+    def recv_into(self, buffer, nbytes=None, flags=0):
+        # Copied verbatim from CPython
+        if buffer and nbytes is None:
+            nbytes = len(buffer)
+        elif nbytes is None:
+            nbytes = 1024
+        # end of CPython code
+
+        return self._base_recv(nbytes, flags, into=True, buffer_=buffer)
+
+    def _base_recv(self, nbytes, flags, into, buffer_=None):
+        if into:
+            plain_socket_function = socket.recv_into
+        else:
+            plain_socket_function = socket.recv
+
         # *NOTE: gross, copied code from ssl.py becase it's not factored well enough to be used as-is
         if self._sslobj:
             if flags != 0:
                 raise ValueError(
-                    "non-zero flags not allowed in calls to recv() on %s" %
-                    self.__class__)
-            read = self.read(buflen)
+                    "non-zero flags not allowed in calls to %s() on %s" %
+                    plain_socket_function.__name__, self.__class__)
+            if sys.version_info < (2, 7) and into:
+                # Python 2.6 SSLSocket.read() doesn't support reading into
+                # a given buffer so we need to emulate
+                data = self.read(nbytes)
+                buffer_[:len(data)] = data
+                read = len(data)
+            elif into:
+                read = self.read(nbytes, buffer_)
+            else:
+                read = self.read(nbytes)
             return read
         else:
             while True:
                 try:
-                    return socket.recv(self, buflen, flags)
+                    args = [self, nbytes, flags]
+                    if into:
+                        args.insert(1, buffer_)
+                    return plain_socket_function(*args)
                 except orig_socket.error as e:
                     if self.act_non_blocking:
                         raise
@@ -217,12 +247,6 @@ class GreenSSLSocket(_original_sslsocket):
                     elif erno in greenio.SOCKET_CLOSED:
                         return b''
                     raise
-
-    def recv_into(self, buffer, nbytes=None, flags=0):
-        if not self.act_non_blocking:
-            trampoline(self, read=True, timeout=self.gettimeout(),
-                       timeout_exc=timeout_exc('timed out'))
-        return super(GreenSSLSocket, self).recv_into(buffer, nbytes, flags)
 
     def recvfrom(self, addr, buflen=1024, flags=0):
         if not self.act_non_blocking:
@@ -303,7 +327,14 @@ class GreenSSLSocket(_original_sslsocket):
                              self.cert_reqs, self.ssl_version,
                              self.ca_certs, *([self.ciphers] if has_ciphers else []))
 
-        self._sslobj = sslobj
+        try:
+            # This is added in Python 3.5, http://bugs.python.org/issue21965
+            SSLObject
+        except NameError:
+            self._sslobj = sslobj
+        else:
+            self._sslobj = SSLObject(sslobj, owner=self)
+
         if self.do_handshake_on_connect:
             self.do_handshake()
 

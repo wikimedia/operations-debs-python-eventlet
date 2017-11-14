@@ -163,15 +163,15 @@ print("already_patched {0}".format(",".join(sorted(patcher.already_patched.keys(
 
     def test_boolean(self):
         self.assert_boolean_logic("patcher.monkey_patch()",
-                                  'os,select,socket,thread,time')
+                                  'os,select,socket,subprocess,thread,time')
 
     def test_boolean_all(self):
         self.assert_boolean_logic("patcher.monkey_patch(all=True)",
-                                  'os,select,socket,thread,time')
+                                  'os,select,socket,subprocess,thread,time')
 
     def test_boolean_all_single(self):
         self.assert_boolean_logic("patcher.monkey_patch(all=True, socket=True)",
-                                  'os,select,socket,thread,time')
+                                  'os,select,socket,subprocess,thread,time')
 
     def test_boolean_all_negative(self):
         self.assert_boolean_logic(
@@ -188,11 +188,11 @@ print("already_patched {0}".format(",".join(sorted(patcher.already_patched.keys(
 
     def test_boolean_negative(self):
         self.assert_boolean_logic("patcher.monkey_patch(socket=False)",
-                                  'os,select,thread,time')
+                                  'os,select,subprocess,thread,time')
 
     def test_boolean_negative2(self):
         self.assert_boolean_logic("patcher.monkey_patch(socket=False, time=False)",
-                                  'os,select,thread')
+                                  'os,select,subprocess,thread')
 
     def test_conflicting_specifications(self):
         self.assert_boolean_logic("patcher.monkey_patch(socket=False, select=True)",
@@ -301,11 +301,11 @@ print(len(threading._active))
 print(len(_threading._active))
 """
         self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 4, "\n".join(lines))
         assert lines[0].startswith('<Thread'), lines[0]
         assert lines[1] == '1', lines
-        #assert lines[2] == '1', lines
+        assert lines[2] == '1', lines
 
     def test_threading(self):
         new_mod = """import eventlet
@@ -319,7 +319,7 @@ t.join()
 print(len(threading._active))
 """
         self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 3, "\n".join(lines))
         assert lines[0].startswith('<_MainThread'), lines[0]
         self.assertEqual(lines[1], "1", lines[1])
@@ -335,8 +335,8 @@ tpool.execute(test)
 print(len(threading._active))
 """
         self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod')
-        #self.assertEqual(len(lines), 3, "\n".join(lines))
+        output, lines = self.launch_subprocess('newmod.py')
+        self.assertEqual(len(lines), 3, "\n".join(lines))
         assert lines[0].startswith('<Thread'), lines[0]
         self.assertEqual(lines[1], "1", lines[1])
 
@@ -354,7 +354,7 @@ evt.wait()
 print(len(threading._active))
 """
         self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 3, "\n".join(lines))
         assert lines[0].startswith('<_MainThread'), lines[0]
         self.assertEqual(lines[1], "1", lines[1])
@@ -370,7 +370,7 @@ t.wait()
 print(len(threading._active))
 """
         self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 3, "\n".join(lines))
         assert lines[0].startswith('<_GreenThread'), lines[0]
         self.assertEqual(lines[1], "1", lines[1])
@@ -380,7 +380,7 @@ print(len(threading._active))
 eventlet.monkey_patch()
 """
         self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 1, "\n".join(lines))
 
 
@@ -392,7 +392,7 @@ eventlet.monkey_patch(all=False, os=True)
 process = subprocess.Popen("sleep 0.1 && false", shell=True)
 print(process.wait())"""
         self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 2, "\n".join(lines))
         self.assertEqual('1', lines[0], repr(output))
 
@@ -419,7 +419,7 @@ t.wait()
 print(repr(t2))
 t2.join()
 """)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 2, "\n".join(lines))
         assert lines[0].startswith('<_GreenThread'), lines[0]
 
@@ -437,7 +437,7 @@ t2.join()
     print(t.getName())
     print(t.get_name())
 """ + self.epilogue)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 10, "\n".join(lines))
         for i in range(0, 3):
             self.assertEqual(lines[i], "GreenThread-1", lines[i])
@@ -451,7 +451,7 @@ t2.join()
     print(id(t._g))
     print(t.ident)
 """ + self.epilogue)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 3, "\n".join(lines))
         self.assertEqual(lines[0], lines[1])
 
@@ -460,7 +460,7 @@ t2.join()
     print(t.is_alive())
     print(t.isAlive())
 """ + self.epilogue)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 3, "\n".join(lines))
         self.assertEqual(lines[0], "True", lines[0])
         self.assertEqual(lines[1], "True", lines[1])
@@ -470,7 +470,7 @@ t2.join()
     print(t.is_daemon())
     print(t.isDaemon())
 """ + self.epilogue)
-        output, lines = self.launch_subprocess('newmod')
+        output, lines = self.launch_subprocess('newmod.py')
         self.assertEqual(len(lines), 3, "\n".join(lines))
         self.assertEqual(lines[0], "True", lines[0])
         self.assertEqual(lines[1], "True", lines[1])
@@ -506,3 +506,7 @@ def test_socketserver_selectors():
 
 def test_blocking_select_methods_are_deleted():
     tests.run_isolated('patcher_blocking_select_methods_are_deleted.py')
+
+
+def test_regular_file_readall():
+    tests.run_isolated('regular_file_readall.py')
