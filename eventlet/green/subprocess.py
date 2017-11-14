@@ -9,6 +9,7 @@ from eventlet.green import select, threading, time
 from eventlet.support import six
 
 
+__patched__ = ['call', 'check_call', 'Popen']
 to_patch = [('select', select), ('threading', threading), ('time', time)]
 
 if sys.version_info > (3, 4):
@@ -16,7 +17,7 @@ if sys.version_info > (3, 4):
     to_patch.append(('selectors', selectors))
 
 patcher.inject('subprocess', globals(), *to_patch)
-subprocess_orig = __import__("subprocess")
+subprocess_orig = patcher.original("subprocess")
 mswindows = sys.platform == "win32"
 
 
@@ -114,7 +115,21 @@ class Popen(subprocess_orig.Popen):
         except AttributeError:
             pass
 
+
 # Borrow subprocess.call() and check_call(), but patch them so they reference
 # OUR Popen class rather than subprocess.Popen.
-call = FunctionType(six.get_function_code(subprocess_orig.call), globals())
-check_call = FunctionType(six.get_function_code(subprocess_orig.check_call), globals())
+def patched_function(function):
+    new_function = FunctionType(six.get_function_code(function), globals())
+    if six.PY3:
+        new_function.__kwdefaults__ = function.__kwdefaults__
+    new_function.__defaults__ = function.__defaults__
+    return new_function
+
+
+call = patched_function(subprocess_orig.call)
+check_call = patched_function(subprocess_orig.check_call)
+# check_output is Python 2.7+
+if hasattr(subprocess_orig, 'check_output'):
+    __patched__.append('check_output')
+    check_output = patched_function(subprocess_orig.check_output)
+del patched_function

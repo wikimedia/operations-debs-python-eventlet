@@ -302,12 +302,10 @@ def get_database_auth():
     return retval
 
 
-def run_python(path, env=None, args=None):
+def run_python(path, env=None, args=None, timeout=None):
     new_argv = [sys.executable]
     new_env = os.environ.copy()
     if path:
-        if not path.endswith('.py'):
-            path += '.py'
         path = os.path.abspath(path)
         new_argv.append(path)
         src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -323,17 +321,19 @@ def run_python(path, env=None, args=None):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     )
+    if timeout is None:
+        timeout = 10
     try:
-        output, _ = p.communicate(timeout=30)
+        output, _ = p.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
         p.kill()
-        output, _ = p.communicate(timeout=30)
-        return "{0}\nFAIL - timed out".format(output)
+        output, _ = p.communicate(timeout=timeout)
+        return '{0}\nFAIL - timed out'.format(output).encode()
     return output
 
 
-def run_isolated(path, prefix='tests/isolated/', env=None, args=None):
-    output = run_python(prefix + path, env=env, args=args).rstrip()
+def run_isolated(path, prefix='tests/isolated/', env=None, args=None, timeout=None):
+    output = run_python(prefix + path, env=env, args=args, timeout=timeout).rstrip()
     if output.startswith(b'skip'):
         parts = output.split(b':', 1)
         skip_args = []
@@ -348,3 +348,8 @@ def run_isolated(path, prefix='tests/isolated/', env=None, args=None):
 
 certificate_file = os.path.join(os.path.dirname(__file__), 'test_server.crt')
 private_key_file = os.path.join(os.path.dirname(__file__), 'test_server.key')
+
+
+def test_run_python_timeout():
+    output = run_python('', args=('-c', 'import time; time.sleep(0.5)'), timeout=0.1)
+    assert output.endswith(b'FAIL - timed out')

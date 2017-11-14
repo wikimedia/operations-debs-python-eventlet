@@ -125,14 +125,14 @@ class GreenSocket(object):
     # This placeholder is to prevent __getattr__ from creating an infinite call loop
     fd = None
 
-    def __init__(self, family_or_realsock=socket.AF_INET, *args, **kwargs):
+    def __init__(self, family=socket.AF_INET, *args, **kwargs):
         should_set_nonblocking = kwargs.pop('set_nonblocking', True)
-        if isinstance(family_or_realsock, six.integer_types):
-            fd = _original_socket(family_or_realsock, *args, **kwargs)
+        if isinstance(family, six.integer_types):
+            fd = _original_socket(family, *args, **kwargs)
             # Notify the hub that this is a newly-opened socket.
             notify_opened(fd.fileno())
         else:
-            fd = family_or_realsock
+            fd = family
 
         # import timeout from other socket, if it was there
         try:
@@ -299,6 +299,11 @@ class GreenSocket(object):
             res = _python2_fileobject(dupped, *args, **kwargs)
             if hasattr(dupped, "_drop"):
                 dupped._drop()
+                # Making the close function of dupped None so that when garbage collector
+                # kicks in and tries to call del, which will ultimately call close, _drop
+                # doesn't get called on dupped twice as it has been already explicitly called in
+                # previous line
+                dupped.close = None
             return res
 
     def makeGreenFile(self, *args, **kw):
@@ -313,7 +318,7 @@ class GreenSocket(object):
             timeout=self.gettimeout(),
             timeout_exc=socket.timeout("timed out"))
 
-    def _recv_loop(self, recv_meth, *args):
+    def _recv_loop(self, recv_meth, empty_val, *args):
         fd = self.fd
         if self.act_non_blocking:
             return recv_meth(*args)
@@ -335,7 +340,7 @@ class GreenSocket(object):
                 if get_errno(e) in SOCKET_BLOCKING:
                     pass
                 elif get_errno(e) in SOCKET_CLOSED:
-                    return b''
+                    return empty_val
                 else:
                     raise
 
@@ -346,16 +351,16 @@ class GreenSocket(object):
                 raise EOFError()
 
     def recv(self, bufsize, flags=0):
-        return self._recv_loop(self.fd.recv, bufsize, flags)
+        return self._recv_loop(self.fd.recv, b'', bufsize, flags)
 
     def recvfrom(self, bufsize, flags=0):
-        return self._recv_loop(self.fd.recvfrom, bufsize, flags)
+        return self._recv_loop(self.fd.recvfrom, b'', bufsize, flags)
 
     def recv_into(self, buffer, nbytes=0, flags=0):
-        return self._recv_loop(self.fd.recv_into, buffer, nbytes, flags)
+        return self._recv_loop(self.fd.recv_into, 0, buffer, nbytes, flags)
 
     def recvfrom_into(self, buffer, nbytes=0, flags=0):
-        return self._recv_loop(self.fd.recvfrom_into, buffer, nbytes, flags)
+        return self._recv_loop(self.fd.recvfrom_into, 0, buffer, nbytes, flags)
 
     def _send_loop(self, send_method, data, *args):
         if self.act_non_blocking:
