@@ -36,6 +36,7 @@ Homepage: http://eventlet.net
 Package: python-eventlet
 Architecture: all
 Depends:
+ netbase,
  python-greenlet,
  ${misc:Depends},
  ${python:Depends},
@@ -80,6 +81,7 @@ Description: concurrent networking library - doc
 Package: python3-eventlet
 Architecture: all
 Depends:
+ netbase,
  python3-greenlet,
  ${misc:Depends},
  ${python3:Depends},
