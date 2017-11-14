@@ -4,6 +4,7 @@ python-eventlet (0.20.0-2) unstable; urgency=medium
     - Update Vcs-Browser and Vcs-Git.
     - Update Maintainer: field.
     - Back to using Pybuild.
+    - Removed openstack-pkg-tools b-d.
   * Add patch (Closes: #881448):
     - 0010-Fix-compilation-errors-when-installing-package-in-Py.patch.
 

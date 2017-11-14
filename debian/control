@@ -9,7 +9,6 @@ Build-Depends:
  debhelper (>= 10),
  dh-python,
  netbase,
- openstack-pkg-tools,
  python-all,
  python-setuptools,
  python-sphinx,
