@@ -11,9 +11,9 @@ Build-Depends:
  netbase,
  python-all,
  python-setuptools,
- python-sphinx,
  python3-all,
  python3-setuptools,
+ python3-sphinx,
 Build-Depends-Indep:
  python-dnspython,
  python-greenlet,
