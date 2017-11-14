@@ -13,6 +13,7 @@ python-eventlet (0.20.0-2) UNRELEASED; urgency=medium
   * d/watch: Use pypi.debian.net
   * Add netbase to depends, socket.getprotobyname needs it
   * d/tests: Split Python2 and Python3 tests
+  * Remove gcs@debian.org from Uploaders as he requested
 
  -- Thomas Goirand <zigo@debian.org>  Tue, 14 Nov 2017 22:24:16 +0100
 
