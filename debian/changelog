@@ -3,6 +3,7 @@ python-eventlet (0.20.0-2) unstable; urgency=medium
   * Move back the package to DPMT:
     - Update Vcs-Browser and Vcs-Git.
     - Update Maintainer: field.
+    - Back to using Pybuild.
   * Add patch (Closes: #881448):
     - 0010-Fix-compilation-errors-when-installing-package-in-Py.patch.
 
