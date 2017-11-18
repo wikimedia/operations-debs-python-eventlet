@@ -1,8 +1,8 @@
-python-eventlet (0.20.0-3) UNRELEASED; urgency=medium
+python-eventlet (0.20.0-3) unstable; urgency=medium
 
   * Depends on python-enum34 (Closes: #881989)
 
- -- Ondřej Nový <onovy@debian.org>  Sat, 18 Nov 2017 10:54:49 +0100
+ -- Ondřej Nový <onovy@debian.org>  Sat, 18 Nov 2017 11:31:54 +0100
 
 python-eventlet (0.20.0-2) unstable; urgency=medium
 
