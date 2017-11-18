@@ -16,6 +16,7 @@ Build-Depends:
  python3-sphinx,
 Build-Depends-Indep:
  python-dnspython,
+ python-enum34,
  python-greenlet,
  python-httplib2,
  python-nose,
@@ -37,6 +38,7 @@ Package: python-eventlet
 Architecture: all
 Depends:
  netbase,
+ python-enum34,
  python-greenlet,
  ${misc:Depends},
  ${python:Depends},
