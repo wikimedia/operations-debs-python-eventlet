@@ -1,6 +1,7 @@
 python-eventlet (0.20.0-4) UNRELEASED; urgency=medium
 
   * Avoid dependency on enum-compat (Closes: #881989)
+  * Bump required version of python-setuptools to 20.6.8
 
  -- Ondřej Nový <onovy@debian.org>  Fri, 01 Dec 2017 13:02:26 +0100
 
