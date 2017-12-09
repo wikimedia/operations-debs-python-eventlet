@@ -1,3 +1,9 @@
+python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
+
+  * Don't reset http{,s}_proxy, pybuild sets it correctly
+
+ -- Ondřej Nový <onovy@debian.org>  Sat, 09 Dec 2017 19:53:39 +0100
+
 python-eventlet (0.20.0-4) unstable; urgency=medium
 
   * Avoid dependency on enum-compat (Closes: #881989)
