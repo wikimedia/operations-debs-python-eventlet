@@ -2,6 +2,7 @@ python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
 
   * Don't reset http{,s}_proxy, pybuild sets it correctly
   * d/control: Set Vcs-* to salsa.debian.org
+  * d/copyright: Bump my copyright year
 
  -- Ondřej Nový <onovy@debian.org>  Sat, 09 Dec 2017 19:53:39 +0100
 
