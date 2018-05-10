@@ -4,7 +4,7 @@ Date: Tue, 14 Nov 2017 22:27:34 +0100
 Subject: Removed test_urllib that is failing in py36
 
 ---
- tests/test__greenness.py | 51 ------------------------------------------------
+ tests/test__greenness.py | 51 ----------------------------------------
  1 file changed, 51 deletions(-)
  delete mode 100644 tests/test__greenness.py
 
