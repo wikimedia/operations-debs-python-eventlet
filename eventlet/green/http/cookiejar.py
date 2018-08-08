@@ -1266,8 +1266,7 @@ def deepvalues(mapping):
             pass
         else:
             mapping = True
-            for i in deepvalues(obj):
-                yield i
+            yield from deepvalues(obj)
         if not mapping:
             yield obj
 

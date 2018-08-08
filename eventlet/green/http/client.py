@@ -121,7 +121,6 @@ Unread-response                _CS_IDLE           <response_class>
 Req-started-unread-response    _CS_REQ_STARTED    <response_class>
 Req-sent-unread-response       _CS_REQ_SENT       <response_class>
 """
-from __future__ import print_function
 
 import email.parser
 import email.message
@@ -193,8 +192,8 @@ _MAXHEADERS = 100
 # the patterns for both name and value are more leniant than RFC
 # definitions to allow for backwards compatibility
 # Eventlet change: match used instead of fullmatch for Python 3.3 compatibility
-_is_legal_header_name = re.compile(b'[^:\\s][^:\\r\\n]*\\Z').match
-_is_illegal_header_value = re.compile(b'\\n(?![ \\t])|\\r(?![ \\t\\n])').search
+_is_legal_header_name = re.compile(rb'[^:\s][^:\r\n]*\Z').match
+_is_illegal_header_value = re.compile(rb'\n(?![ \t])|\r(?![ \t\n])').search
 
 # We always set the Content-Length header for these methods because some
 # servers will otherwise respond with a 411
@@ -206,16 +205,14 @@ def _encode(data, name='data'):
     try:
         return data.encode("latin-1")
     except UnicodeEncodeError as err:
-        exc = UnicodeEncodeError(
+        raise UnicodeEncodeError(
             err.encoding,
             err.object,
             err.start,
             err.end,
             "%s (%.20r) is not valid Latin-1. Use %s.encode('utf-8') "
             "if you want to send it encoded in UTF-8." %
-            (name.title(), data[err.start:err.end], name))
-        exc.__cause__ = None
-        raise exc
+            (name.title(), data[err.start:err.end], name)) from None
 
 
 class HTTPMessage(email.message.Message):
@@ -1333,7 +1330,7 @@ else:
 
         def __init__(self, host, port=None, key_file=None, cert_file=None,
                      timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
-                     source_address=None, context=None,
+                     source_address=None, *, context=None,
                      check_hostname=None):
             super(HTTPSConnection, self).__init__(host, port, timeout,
                                                   source_address)

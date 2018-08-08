@@ -4,6 +4,7 @@ python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
   * d/control: Set Vcs-* to salsa.debian.org
   * d/copyright: Bump my copyright year
   * Fix RecursionError in ssl on Python3.6+
+  * Convert git repository from git-dpm to gbp layout
 
  -- Ondřej Nový <onovy@debian.org>  Sat, 09 Dec 2017 19:53:39 +0100
 
