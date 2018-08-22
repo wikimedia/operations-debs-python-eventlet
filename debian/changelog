@@ -5,6 +5,7 @@ python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
   * d/copyright: Bump my copyright year
   * Fix RecursionError in ssl on Python3.6+
   * Convert git repository from git-dpm to gbp layout
+  * d/p/0013-New_test_crt.patch: Add, regenerate test crt
 
  -- Ondřej Nový <onovy@debian.org>  Sat, 09 Dec 2017 19:53:39 +0100
 
