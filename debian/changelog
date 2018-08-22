@@ -3,7 +3,7 @@ python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
   * Don't reset http{,s}_proxy, pybuild sets it correctly
   * d/control: Set Vcs-* to salsa.debian.org
   * d/copyright: Bump my copyright year
-  * Fix RecursionError in ssl on Python3.6+
+  * Fix RecursionError in ssl on Python3.6+ (Closes: #901772)
   * Convert git repository from git-dpm to gbp layout
   * d/p/0013-New_test_crt.patch: Add, regenerate test crt
 
