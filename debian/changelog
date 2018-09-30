@@ -1,4 +1,4 @@
-python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
+python-eventlet (0.20.0-5) unstable; urgency=medium
 
   * Don't reset http{,s}_proxy, pybuild sets it correctly
   * d/control: Set Vcs-* to salsa.debian.org
@@ -12,7 +12,7 @@ python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
   * Standards version is 4.2.1 now (no changes)
   * Add upstream metadata
 
- -- Ondřej Nový <onovy@debian.org>  Sat, 09 Dec 2017 19:53:39 +0100
+ -- Ondřej Nový <onovy@debian.org>  Sun, 30 Sep 2018 14:39:27 +0200
 
 python-eventlet (0.20.0-4) unstable; urgency=medium
 
