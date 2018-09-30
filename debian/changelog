@@ -10,6 +10,7 @@ python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
   * Fix Python 3.7 (Closes: #903609)
   * Bump debhelper compat level to 11
   * Standards version is 4.2.1 now (no changes)
+  * Add upstream metadata
 
  -- Ondřej Nový <onovy@debian.org>  Sat, 09 Dec 2017 19:53:39 +0100
 
