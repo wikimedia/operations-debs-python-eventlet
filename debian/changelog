@@ -7,6 +7,7 @@ python-eventlet (0.20.0-5) UNRELEASED; urgency=medium
   * Convert git repository from git-dpm to gbp layout
   * d/p/0013-New_test_crt.patch: Add, regenerate test crt
   * Use 'python3 -m sphinx' instead of sphinx-build for building docs
+  * Fix Python 3.7 (Closes: #903609)
 
  -- Ondřej Nový <onovy@debian.org>  Sat, 09 Dec 2017 19:53:39 +0100
 

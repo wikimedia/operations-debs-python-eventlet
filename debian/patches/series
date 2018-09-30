@@ -11,3 +11,4 @@
 0011-Avoid-dependency-on-enum-compat.patch
 0012-ssl-RecursionError-on-Python3.6.patch
 0013-New_test_crt.patch
+0014-Fix-for-Python-3.7.patch
