@@ -2,6 +2,7 @@ From cf47cb518db3e0dbdd48473fb40cf9f6ecd50e07 Mon Sep 17 00:00:00 2001
 From: Marcel Plch <mplch@redhat.com>
 Date: Fri, 28 Sep 2018 17:08:59 +0200
 Subject: [PATCH] Fix for Python 3.7 (#506)
+Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40cf9f6ecd50e07
 
 * Fix for Python 3.7
 
