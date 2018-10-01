@@ -1,6 +1,7 @@
 #!/usr/bin/make -f
 
 export PYBUILD_NAME=eventlet
+export TRAVIS=true
 
 %:
 	dh $@ --with python2,python3,sphinxdoc --buildsystem=pybuild
