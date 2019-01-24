@@ -1,7 +1,7 @@
 Description: More Python 3.7 fixes
  This patch is a mix of these:
  https://github.com/eventlet/eventlet/pull/531/commits
-Author: Ondřej Nový <onovy@debian.org>
+Author: Jerry Luan <jerry.luan@airbnb.com>
 Origin: upstream, https://github.com/eventlet/eventlet/issues/526
 Last-Update: 2019-01-22
 
@@ -161,13 +161,3 @@ Last-Update: 2019-01-22
              set_nonblocking(fd)
          self.fd = fd
          # when client calls setblocking(0) or settimeout(0) the socket must
---- python-eventlet-0.20.0.orig/tests/api_test.py
-+++ python-eventlet-0.20.0/tests/api_test.py
-@@ -74,6 +74,7 @@ class TestApi(TestCase):
-             self.certificate_file,
-             server_side=True
-         )
-+
-         eventlet.spawn_n(accept_once, server)
- 
-         raw_client = eventlet.connect(('127.0.0.1', server.getsockname()[1]))

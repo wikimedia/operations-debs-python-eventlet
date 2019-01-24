@@ -1,10 +1,11 @@
-python-eventlet (0.20.0-6) UNRELEASED; urgency=medium
+python-eventlet (0.20.0-6) unstable; urgency=medium
 
   [ Ondřej Nový ]
   * Set TRAVIS env to better handle timing tests
 
   [ Thomas Goirand ]
-  * More Python 3.7 patches.
+  * Team upload with agreement from Ondřej Nový.
+  * Add 0015-more-python3.7-fixes.patch.
 
  -- Thomas Goirand <zigo@debian.org>  Tue, 22 Jan 2019 17:06:21 +0100
 
