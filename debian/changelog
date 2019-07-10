@@ -1,4 +1,4 @@
-python-eventlet (0.24.1-1) UNRELEASED; urgency=medium
+python-eventlet (0.24.1-1) experimental; urgency=medium
 
   * New upstream release
   * Bump debhelper compat level to 12 and use debhelper-compat
@@ -15,7 +15,7 @@ python-eventlet (0.24.1-1) UNRELEASED; urgency=medium
   * Drop Python 2 support, because required version of
     python3-monotonic doesn't exists
 
- -- Ondřej Nový <onovy@debian.org>  Wed, 10 Jul 2019 13:34:35 +0200
+ -- Ondřej Nový <onovy@debian.org>  Wed, 10 Jul 2019 16:31:13 +0200
 
 python-eventlet (0.20.0-6) unstable; urgency=medium
 
