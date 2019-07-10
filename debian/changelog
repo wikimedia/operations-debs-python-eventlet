@@ -13,7 +13,7 @@ python-eventlet (0.24.1-1) experimental; urgency=medium
     - Rebased others
   * Add python3-monotonic and python3-six to B-D
   * Drop Python 2 support, because required version of
-    python3-monotonic doesn't exists
+    python-monotonic doesn't exists
 
  -- Ondřej Nový <onovy@debian.org>  Wed, 10 Jul 2019 16:31:13 +0200
 
