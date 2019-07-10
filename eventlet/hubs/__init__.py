@@ -1,7 +1,8 @@
 import os
 
 from eventlet import patcher
-from eventlet.support import greenlets as greenlet, six
+from eventlet.support import greenlets as greenlet
+import six
 
 
 __all__ = ["use_hub", "get_hub", "get_default_hub", "trampoline"]
@@ -118,6 +119,7 @@ def get_hub():
     return hub
 
 
+# Lame middle file import because complex dependencies in import graph
 from eventlet import timeout
 
 

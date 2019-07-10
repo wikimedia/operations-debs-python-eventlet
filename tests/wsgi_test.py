@@ -1,3 +1,4 @@
+# coding: utf-8
 import cgi
 import collections
 import errno
@@ -19,7 +20,8 @@ from eventlet import tpool
 from eventlet import wsgi
 from eventlet.green import socket as greensocket
 from eventlet.green import ssl
-from eventlet.support import bytes_to_str, capture_stderr, six
+from eventlet.support import bytes_to_str
+import six
 import tests
 
 
@@ -217,7 +219,6 @@ def read_http(sock):
 class _TestBase(tests.LimitedTestCase):
     def setUp(self):
         super(_TestBase, self).setUp()
-        self.logfile = six.StringIO()
         self.site = Site()
         self.killer = None
         self.set_site()
@@ -234,6 +235,7 @@ class _TestBase(tests.LimitedTestCase):
 
         Sets `self.server_addr` to (host, port) tuple suitable for `socket.connect`.
         """
+        self.logfile = six.StringIO()
         new_kwargs = dict(max_size=128,
                           log=self.logfile,
                           site=self.site)
@@ -255,7 +257,7 @@ class _TestBase(tests.LimitedTestCase):
         if self.killer:
             greenthread.kill(self.killer)
 
-        self.killer = eventlet.spawn_n(target, **kwargs)
+        self.killer = eventlet.spawn(target, **kwargs)
 
     def set_site(self):
         raise NotImplementedError
@@ -557,8 +559,8 @@ class TestHttpd(_TestBase):
         def server(sock, site, log):
             try:
                 serv = wsgi.Server(sock, sock.getsockname(), site, log)
-                client_socket = sock.accept()
-                serv.process_request(client_socket)
+                client_socket, addr = sock.accept()
+                serv.process_request([addr, client_socket, wsgi.STATE_IDLE])
                 return True
             except Exception:
                 traceback.print_exc()
@@ -982,7 +984,7 @@ class TestHttpd(_TestBase):
         listener = greensocket.socket()
         listener.bind(('localhost', 0))
         # NOT calling listen, to trigger the error
-        with capture_stderr() as log:
+        with tests.capture_stderr() as log:
             self.spawn_server(sock=listener)
             eventlet.sleep(0)  # need to enter server loop
             try:
@@ -1398,10 +1400,38 @@ class TestHttpd(_TestBase):
         sock = eventlet.connect(self.server_addr)
         sock.sendall(b'GET /a*b@%40%233 HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n')
         result = read_http(sock)
-        self.assertEqual(result.status, 'HTTP/1.1 200 OK')
+        assert result.status == 'HTTP/1.1 200 OK'
         assert b'decoded: /a*b@@#3' in result.body
         assert b'raw: /a*b@%40%233' in result.body
 
+    def test_path_info_latin1(self):
+        # https://github.com/eventlet/eventlet/issues/468
+        g = []
+
+        def wsgi_app(environ, start_response):
+            g.append(environ['PATH_INFO'])
+            start_response("200 OK", [])
+            return b''
+
+        self.site.application = wsgi_app
+        sock = eventlet.connect(self.server_addr)
+        sock.sendall(b'GET /%E4%BD%A0%E5%A5%BD HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n')
+        result = read_http(sock)
+        assert result.status == 'HTTP/1.1 200 OK'
+        # that was only preparation, actual test below
+        # Per PEP-0333 https://www.python.org/dev/peps/pep-0333/#unicode-issues
+        # in all WSGI environment strings application must observe either bytes in latin-1 (ISO-8859-1)
+        # or unicode code points \u0000..\u00ff
+        # wsgi_decoding_dance from Werkzeug to emulate concerned application
+        msg = 'Expected PATH_INFO to be a native string, not {0}'.format(type(g[0]))
+        assert isinstance(g[0], str), msg
+        if six.PY2:
+            assert g[0] == u'/你好'.encode('utf-8')
+        else:
+            decoded = g[0].encode('latin1').decode('utf-8', 'replace')
+            assert decoded == u'/你好'
+
+    @tests.skip_if_no_ipv6
     def test_ipv6(self):
         try:
             sock = eventlet.listen(('::1', 0), family=socket.AF_INET6)
@@ -1471,13 +1501,14 @@ class TestHttpd(_TestBase):
             sock.close()
 
         request_thread = eventlet.spawn(make_request)
-        server_conn = server_sock.accept()
+        client_sock, addr = server_sock.accept()
         # Next line must not raise IOError -32 Broken pipe
-        server.process_request(server_conn)
+        server.process_request([addr, client_sock, wsgi.STATE_IDLE])
         request_thread.wait()
         server_sock.close()
 
     def test_server_connection_timeout_exception(self):
+        self.reset_timeout(5)
         # Handle connection socket timeouts
         # https://bitbucket.org/eventlet/eventlet/issue/143/
         # Runs tests.wsgi_test_conntimeout in a separate process.
@@ -1571,6 +1602,61 @@ class TestHttpd(_TestBase):
         assert result.status == 'HTTP/1.1 200 OK', 'Received status {0!r}'.format(result.status)
         assert result.body == (b'HTTP_HOST: localhost\nHTTP_HTTP_X_ANY_K: two\n'
                                b'HTTP_PATH_INFO: foo\nHTTP_X_ANY_K: one\n')
+
+    def test_env_header_stripping(self):
+        def app(environ, start_response):
+            start_response('200 OK', [])
+            # On py3, headers get parsed as Latin-1, so send them back out as Latin-1, too
+            return [line if isinstance(line, bytes) else line.encode('latin1')
+                    for kv in sorted(environ.items())
+                    if kv[0].startswith('HTTP_')
+                    for line in ('{0}: {1}\n'.format(*kv),)]
+
+        self.spawn_server(site=app)
+        sock = eventlet.connect(self.server_addr)
+        sock.sendall(
+            b'GET / HTTP/1.1\r\n'
+            b'Host: localhost\r\n'
+            b'spaced:   o   u   t   \r\n'
+            b'trailing: tab\t\r\n'
+            b'trailing-nbsp: \xc2\xa0\r\n'
+            b'null-set: \xe2\x88\x85\r\n\r\n')
+        result = read_http(sock)
+        sock.close()
+        assert result.status == 'HTTP/1.1 200 OK', 'Received status {0!r}'.format(result.status)
+        assert result.body == (
+            b'HTTP_HOST: localhost\n'
+            b'HTTP_NULL_SET: \xe2\x88\x85\n'
+            b'HTTP_SPACED: o   u   t\n'
+            b'HTTP_TRAILING: tab\n'
+            b'HTTP_TRAILING_NBSP: \xc2\xa0\n')
+
+    def test_log_disable(self):
+        self.spawn_server(log_output=False)
+        sock = eventlet.connect(self.server_addr)
+        sock.sendall(b'GET / HTTP/1.1\r\nHost: localhost\r\npath-info: foo\r\n'
+                     b'x-ANY_k: one\r\nhttp-x-ANY_k: two\r\n\r\n')
+        read_http(sock)
+        sock.close()
+        log_content = self.logfile.getvalue()
+        assert log_content == ''
+
+    def test_close_idle_connections(self):
+        self.reset_timeout(2)
+        pool = eventlet.GreenPool()
+        self.spawn_server(custom_pool=pool)
+        # https://github.com/eventlet/eventlet/issues/188
+        sock = eventlet.connect(self.server_addr)
+
+        sock.sendall(b'GET / HTTP/1.1\r\nHost: localhost\r\n\r\n')
+        result = read_http(sock)
+        assert result.status == 'HTTP/1.1 200 OK', 'Received status {0!r}'.format(result.status)
+        self.killer.kill(KeyboardInterrupt)
+        try:
+            with eventlet.Timeout(1):
+                pool.waitall()
+        except Exception:
+            assert False, self.logfile.getvalue()
 
 
 def read_headers(sock):

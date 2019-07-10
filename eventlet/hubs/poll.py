@@ -4,7 +4,6 @@ import sys
 from eventlet import patcher
 select = patcher.original('select')
 time = patcher.original('time')
-sleep = time.sleep
 
 from eventlet.hubs.hub import BaseHub, READ, WRITE, noop
 from eventlet.support import get_errno, clear_sys_exc_info
@@ -15,14 +14,9 @@ WRITE_MASK = select.POLLOUT
 
 
 class Hub(BaseHub):
-    def __init__(self, clock=time.time):
+    def __init__(self, clock=None):
         super(Hub, self).__init__(clock)
         self.poll = select.poll()
-        # poll.modify is new to 2.6
-        try:
-            self.modify = self.poll.modify
-        except AttributeError:
-            self.modify = self.poll.register
 
     def add(self, evtype, fileno, cb, tb, mac):
         listener = super(Hub, self).add(evtype, fileno, cb, tb, mac)
@@ -45,7 +39,7 @@ class Hub(BaseHub):
                     self.poll.register(fileno, mask)
                 else:
                     try:
-                        self.modify(fileno, mask)
+                        self.poll.modify(fileno, mask)
                     except (IOError, OSError):
                         self.poll.register(fileno, mask)
             else:
@@ -79,7 +73,7 @@ class Hub(BaseHub):
 
         if not readers and not writers:
             if seconds:
-                sleep(seconds)
+                time.sleep(seconds)
             return
         try:
             presult = self.do_poll(seconds)

@@ -72,10 +72,7 @@ def test_dns_methods_are_green():
         with open(mock_sys_pkg_dir + '/dns.py', 'wb') as f:
             f.write(b'raise Exception("Your IP address string is so illegal ' +
                     b'it prevents installing packages.")\n')
-        tests.run_isolated(
-            'socket_resolve_green.py',
-            env={'PYTHONPATH': os.pathsep.join(sys.path + [mock_sys_pkg_dir])},
-        )
+        tests.run_isolated('socket_resolve_green.py', pythonpath_extend=[mock_sys_pkg_dir])
     finally:
         shutil.rmtree(mock_sys_pkg_dir)
 
@@ -91,3 +88,14 @@ def test_getaddrinfo_ipv6_scope():
     if not socket.has_ipv6:
         return
     socket.getaddrinfo('::1%2', 80, socket.AF_INET6)
+
+
+def test_error_is_timeout():
+    s1, _ = socket.socketpair()
+    s1.settimeout(0.01)
+    try:
+        s1.recv(1)
+    except socket.error as e:
+        tests.check_is_timeout(e)
+    else:
+        assert False, 'No timeout, socket.error was not raised'
