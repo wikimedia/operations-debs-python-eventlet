@@ -10,13 +10,11 @@ Origin: https://github.com/eventlet/eventlet/commit/de06878e5a295bfbbddca0048c34
  2 files changed, 36 insertions(+)
  create mode 100644 tests/isolated/green_ssl_py36_properties.py
 
-diff --git a/eventlet/green/ssl.py b/eventlet/green/ssl.py
-index d7fbef7..a5a2062 100644
 --- a/eventlet/green/ssl.py
 +++ b/eventlet/green/ssl.py
-@@ -401,6 +401,26 @@ if hasattr(__ssl, 'SSLContext'):
-         def wrap_socket(self, sock, *a, **kw):
-             return GreenSSLSocket(sock, *a, _context=self, **kw)
+@@ -411,6 +411,26 @@
+             def verify_mode(self, value):
+                 super(_original_sslcontext, _original_sslcontext).verify_mode.__set__(self, value)
  
 +        # https://github.com/eventlet/eventlet/issues/371
 +        # Thanks to Gevent developers for sharing patch to this problem.
@@ -41,25 +39,3 @@ index d7fbef7..a5a2062 100644
      SSLContext = GreenSSLContext
  
      if hasattr(__ssl, 'create_default_context'):
-diff --git a/tests/isolated/green_ssl_py36_properties.py b/tests/isolated/green_ssl_py36_properties.py
-new file mode 100644
-index 0000000..aa6b5b5
---- /dev/null
-+++ b/tests/isolated/green_ssl_py36_properties.py
-@@ -0,0 +1,16 @@
-+__test__ = False
-+
-+
-+if __name__ == '__main__':
-+    import eventlet
-+    eventlet.monkey_patch()
-+
-+    try:
-+        eventlet.wrap_ssl(
-+            eventlet.listen(('localhost', 0)),
-+            certfile='does-not-exist',
-+            keyfile='does-not-exist',
-+            server_side=True)
-+    except IOError as ex:
-+        assert ex.errno == 2
-+        print('pass')

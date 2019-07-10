@@ -27,7 +27,7 @@ Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40c
 
 --- a/eventlet/green/ssl.py
 +++ b/eventlet/green/ssl.py
-@@ -28,6 +28,7 @@
+@@ -24,6 +24,7 @@
      'create_default_context', '_create_default_https_context']
  
  _original_sslsocket = __ssl.SSLSocket
@@ -35,7 +35,7 @@ Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40c
  
  
  class GreenSSLSocket(_original_sslsocket):
-@@ -61,11 +62,41 @@
+@@ -57,11 +58,41 @@
              # this assignment
              self._timeout = sock.gettimeout()
  
@@ -82,7 +82,7 @@ Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40c
  
          # the superclass initializer trashes the methods so we remove
          # the local-object versions of them and let the actual class
-@@ -333,7 +364,10 @@
+@@ -323,7 +354,10 @@
          except NameError:
              self._sslobj = sslobj
          else:
@@ -96,19 +96,17 @@ Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40c
              self.do_handshake()
 --- a/setup.py
 +++ b/setup.py
-@@ -34,6 +34,9 @@
-         "Programming Language :: Python :: 2.7",
-         "Programming Language :: Python :: 3.3",
+@@ -42,6 +42,7 @@
          "Programming Language :: Python :: 3.4",
-+        "Programming Language :: Python :: 3.5",
-+        "Programming Language :: Python :: 3.6",
+         "Programming Language :: Python :: 3.5",
+         "Programming Language :: Python :: 3.6",
 +        "Programming Language :: Python :: 3.7",
+         "Programming Language :: Python",
          "Topic :: Internet",
          "Topic :: Software Development :: Libraries :: Python Modules",
-         "Intended Audience :: Developers",
 --- a/tests/debug_test.py
 +++ b/tests/debug_test.py
-@@ -30,6 +30,11 @@
+@@ -29,6 +29,11 @@
          assert self.tracer is None
  
      def test_line(self):
@@ -120,7 +118,7 @@ Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40c
          sys.stdout = six.StringIO()
          s = debug.Spew()
          f = sys._getframe()
-@@ -37,7 +42,7 @@
+@@ -36,7 +41,7 @@
          lineno = f.f_lineno - 1  # -1 here since we called with frame f in the line above
          output = sys.stdout.getvalue()
          assert "%s:%i" % (__name__, lineno) in output, "Didn't find line %i in %s" % (lineno, output)
@@ -129,7 +127,7 @@ Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40c
  
      def test_line_nofile(self):
          sys.stdout = six.StringIO()
-@@ -52,6 +57,11 @@
+@@ -51,6 +56,11 @@
          assert "VM instruction #" in output, output
  
      def test_line_global(self):
@@ -141,7 +139,7 @@ Origin: https://github.com/eventlet/eventlet/commit/cf47cb518db3e0dbdd48473fb40c
          global GLOBAL_VAR
          sys.stdout = six.StringIO()
          GLOBAL_VAR = debug.Spew()
-@@ -60,7 +70,7 @@
+@@ -59,7 +69,7 @@
          lineno = f.f_lineno - 1  # -1 here since we called with frame f in the line above
          output = sys.stdout.getvalue()
          assert "%s:%i" % (__name__, lineno) in output, "Didn't find line %i in %s" % (lineno, output)

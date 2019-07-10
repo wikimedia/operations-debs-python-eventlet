@@ -11,28 +11,26 @@ Last-Update: 2016-07-19
  tests/zmq_test.py | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tests/zmq_test.py b/tests/zmq_test.py
-index 2910c11..e925038 100644
 --- a/tests/zmq_test.py
 +++ b/tests/zmq_test.py
-@@ -448,7 +448,7 @@ class TestUpstreamDownStream(tests.LimitedTestCase):
+@@ -449,7 +449,7 @@
          self.sockets.append(sock)
          sock.bind_to_random_port("tcp://127.0.0.1")
-         sleep()
+         eventlet.sleep()
 -        tests.check_idle_cpu_usage(0.2, 0.1)
 +        tests.check_idle_cpu_usage(0.2, 0.2)
  
      @tests.skip_unless(zmq_supported)
      def test_cpu_usage_after_pub_send_or_dealer_recv(self):
-@@ -460,14 +460,14 @@ class TestUpstreamDownStream(tests.LimitedTestCase):
+@@ -461,14 +461,14 @@
          sub.setsockopt(zmq.SUBSCRIBE, b"")
-         sleep()
+         eventlet.sleep()
          pub.send(b'test_send')
 -        tests.check_idle_cpu_usage(0.2, 0.1)
 +        tests.check_idle_cpu_usage(0.2, 0.2)
  
          sender, receiver, _port = self.create_bound_pair(zmq.DEALER, zmq.DEALER)
-         sleep()
+         eventlet.sleep()
          sender.send(b'test_recv')
          msg = receiver.recv()
          self.assertEqual(msg, b'test_recv')

@@ -4,11 +4,9 @@
 0004-Remove-networking-tests.patch
 0005-Removed-failing-test.patch
 0006-Patch-out-intersphinx.patch
-0007-Patched-test_getaddrinfo-due-netbase-update.patch
 0008-Disable-test_server_connection_timeout_exception.patch
 0009-Removed-test_urllib-that-is-failing-in-py36.patch
 0010-Fix-compilation-errors-when-installing-package-in-Py.patch
-0011-Avoid-dependency-on-enum-compat.patch
 0012-ssl-RecursionError-on-Python3.6.patch
 0013-New_test_crt.patch
 0014-Fix-for-Python-3.7.patch
