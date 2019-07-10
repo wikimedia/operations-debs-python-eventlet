@@ -1,5 +1,6 @@
-python-eventlet (0.20.0-7) UNRELEASED; urgency=medium
+python-eventlet (0.24.1-1) UNRELEASED; urgency=medium
 
+  * New upstream release
   * Bump debhelper compat level to 12 and use debhelper-compat
   * Standards version is 4.4.0 now (no changes)
   * d/copyright: Bump my copyright year.
