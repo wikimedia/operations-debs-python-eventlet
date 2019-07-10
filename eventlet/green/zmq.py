@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 """The :mod:`zmq` module wraps the :class:`Socket` and :class:`Context`
-found in :mod:`pyzmq <zmq>` to be non blocking
+found in :mod:`pyzmq <zmq>` to be non blocking.
 """
-
-from __future__ import with_statement
-
 __zmq__ = __import__('zmq')
-from eventlet import hubs
+import eventlet.hubs
 from eventlet.patcher import slurp_properties
 from eventlet.support import greenlets as greenlet
 
@@ -40,7 +37,7 @@ class _QueueLock(object):
         self._waiters = deque()
         self._count = 0
         self._holder = None
-        self._hub = hubs.get_hub()
+        self._hub = eventlet.hubs.get_hub()
 
     def __nonzero__(self):
         return bool(self._count)
@@ -88,17 +85,20 @@ class _BlockedThread(object):
     def __init__(self):
         self._blocked_thread = None
         self._wakeupper = None
-        self._hub = hubs.get_hub()
+        self._hub = eventlet.hubs.get_hub()
 
     def __nonzero__(self):
         return self._blocked_thread is not None
 
     __bool__ = __nonzero__
 
-    def block(self):
+    def block(self, deadline=None):
         if self._blocked_thread is not None:
             raise Exception("Cannot block more than one thread on one BlockedThread")
         self._blocked_thread = greenlet.getcurrent()
+
+        if deadline is not None:
+            self._hub.schedule_call_local(deadline - self._hub.clock(), self.wake)
 
         try:
             self._hub.switch()
@@ -123,13 +123,13 @@ class _BlockedThread(object):
 
 
 class Context(__zmq__.Context):
-    """Subclass of :class:`zmq.core.context.Context`
+    """Subclass of :class:`zmq.Context`
     """
 
     def socket(self, socket_type):
         """Overridden method to ensure that the green version of socket is used
 
-        Behaves the same as :meth:`zmq.core.context.Context.socket`, but ensures
+        Behaves the same as :meth:`zmq.Context.socket`, but ensures
         that a :class:`Socket` with all of its send and recv methods set to be
         non-blocking is returned
         """
@@ -239,18 +239,19 @@ class Socket(_Socket):
                 # avoid repeated wakeups
                 _Socket_getsockopt(self, EVENTS)
 
-        hub = hubs.get_hub()
+        hub = eventlet.hubs.get_hub()
         self.__dict__['_eventlet_listener'] = hub.add(hub.READ,
                                                       self.getsockopt(FD),
                                                       event,
                                                       lambda _: None,
                                                       lambda: None)
+        self.__dict__['_eventlet_clock'] = hub.clock
 
     @_wraps(_Socket.close)
     def close(self, linger=None):
         super(Socket, self).close(linger)
         if self._eventlet_listener is not None:
-            hubs.get_hub().remove(self._eventlet_listener)
+            eventlet.hubs.get_hub().remove(self._eventlet_listener)
             self.__dict__['_eventlet_listener'] = None
             # wake any blocked threads
             self._eventlet_send_event.wake()
@@ -320,46 +321,46 @@ class Socket(_Socket):
             return _Socket_send_multipart(self, msg_parts, flags, copy, track)
 
     @_wraps(_Socket.send_string)
-    def send_string(self, msg_parts, flags=0, copy=True, track=False):
+    def send_string(self, u, flags=0, copy=True, encoding='utf-8'):
         """A send_string method that's safe to use when multiple
         greenthreads are calling send, send_string, recv and
         recv_string on the same socket.
         """
         if flags & NOBLOCK:
-            return _Socket_send_string(self, msg_parts, flags, copy, track)
+            return _Socket_send_string(self, u, flags, copy, encoding)
 
         # acquire lock here so the subsequent calls to send for the
         # message parts after the first don't block
         with self._eventlet_send_lock:
-            return _Socket_send_string(self, msg_parts, flags, copy, track)
+            return _Socket_send_string(self, u, flags, copy, encoding)
 
     @_wraps(_Socket.send_pyobj)
-    def send_pyobj(self, msg_parts, flags=0, copy=True, track=False):
+    def send_pyobj(self, obj, flags=0, protocol=2):
         """A send_pyobj method that's safe to use when multiple
         greenthreads are calling send, send_pyobj, recv and
         recv_pyobj on the same socket.
         """
         if flags & NOBLOCK:
-            return _Socket_send_pyobj(self, msg_parts, flags, copy, track)
+            return _Socket_send_pyobj(self, obj, flags, protocol)
 
         # acquire lock here so the subsequent calls to send for the
         # message parts after the first don't block
         with self._eventlet_send_lock:
-            return _Socket_send_pyobj(self, msg_parts, flags, copy, track)
+            return _Socket_send_pyobj(self, obj, flags, protocol)
 
     @_wraps(_Socket.send_json)
-    def send_json(self, msg_parts, flags=0, copy=True, track=False):
+    def send_json(self, obj, flags=0, **kwargs):
         """A send_json method that's safe to use when multiple
         greenthreads are calling send, send_json, recv and
         recv_json on the same socket.
         """
         if flags & NOBLOCK:
-            return _Socket_send_json(self, msg_parts, flags, copy, track)
+            return _Socket_send_json(self, obj, flags, **kwargs)
 
         # acquire lock here so the subsequent calls to send for the
         # message parts after the first don't block
         with self._eventlet_send_lock:
-            return _Socket_send_json(self, msg_parts, flags, copy, track)
+            return _Socket_send_json(self, obj, flags, **kwargs)
 
     @_wraps(_Socket.recv)
     def recv(self, flags=0, copy=True, track=False):
@@ -376,6 +377,16 @@ class Socket(_Socket):
             self._eventlet_recv_event.wake()
             return msg
 
+        deadline = None
+        if hasattr(__zmq__, 'RCVTIMEO'):
+            sock_timeout = self.getsockopt(__zmq__.RCVTIMEO)
+            if sock_timeout == -1:
+                pass
+            elif sock_timeout > 0:
+                deadline = self._eventlet_clock() + sock_timeout / 1000.0
+            else:
+                raise ValueError(sock_timeout)
+
         flags |= NOBLOCK
         with self._eventlet_recv_lock:
             while True:
@@ -383,7 +394,12 @@ class Socket(_Socket):
                     return _Socket_recv(self, flags, copy, track)
                 except ZMQError as e:
                     if e.errno == EAGAIN:
-                        self._eventlet_recv_event.block()
+                        # zmq in its wisdom decided to reuse EAGAIN for timeouts
+                        if deadline is not None and self._eventlet_clock() > deadline:
+                            e.is_timeout = True
+                            raise
+
+                        self._eventlet_recv_event.block(deadline=deadline)
                     else:
                         raise
                 finally:
@@ -407,43 +423,43 @@ class Socket(_Socket):
             return _Socket_recv_multipart(self, flags, copy, track)
 
     @_wraps(_Socket.recv_string)
-    def recv_string(self, flags=0, copy=True, track=False):
+    def recv_string(self, flags=0, encoding='utf-8'):
         """A recv_string method that's safe to use when multiple
         greenthreads are calling send, send_string, recv and
         recv_string on the same socket.
         """
         if flags & NOBLOCK:
-            return _Socket_recv_string(self, flags, copy, track)
+            return _Socket_recv_string(self, flags, encoding)
 
         # acquire lock here so the subsequent calls to recv for the
         # message parts after the first don't block
         with self._eventlet_recv_lock:
-            return _Socket_recv_string(self, flags, copy, track)
-
-    @_wraps(_Socket.recv_pyobj)
-    def recv_pyobj(self, flags=0, copy=True, track=False):
-        """A recv_pyobj method that's safe to use when multiple
-        greenthreads are calling send, send_pyobj, recv and
-        recv_pyobj on the same socket.
-        """
-        if flags & NOBLOCK:
-            return _Socket_recv_pyobj(self, flags, copy, track)
-
-        # acquire lock here so the subsequent calls to recv for the
-        # message parts after the first don't block
-        with self._eventlet_recv_lock:
-            return _Socket_recv_pyobj(self, flags, copy, track)
+            return _Socket_recv_string(self, flags, encoding)
 
     @_wraps(_Socket.recv_json)
-    def recv_json(self, flags=0, copy=True, track=False):
+    def recv_json(self, flags=0, **kwargs):
         """A recv_json method that's safe to use when multiple
         greenthreads are calling send, send_json, recv and
         recv_json on the same socket.
         """
         if flags & NOBLOCK:
-            return _Socket_recv_json(self, flags, copy, track)
+            return _Socket_recv_json(self, flags, **kwargs)
 
         # acquire lock here so the subsequent calls to recv for the
         # message parts after the first don't block
         with self._eventlet_recv_lock:
-            return _Socket_recv_json(self, flags, copy, track)
+            return _Socket_recv_json(self, flags, **kwargs)
+
+    @_wraps(_Socket.recv_pyobj)
+    def recv_pyobj(self, flags=0):
+        """A recv_pyobj method that's safe to use when multiple
+        greenthreads are calling send, send_pyobj, recv and
+        recv_pyobj on the same socket.
+        """
+        if flags & NOBLOCK:
+            return _Socket_recv_pyobj(self, flags)
+
+        # acquire lock here so the subsequent calls to recv for the
+        # message parts after the first don't block
+        with self._eventlet_recv_lock:
+            return _Socket_recv_pyobj(self, flags)

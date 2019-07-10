@@ -24,6 +24,10 @@ from nose.plugins.skip import SkipTest
 
 import eventlet
 from eventlet import tpool
+import six
+import socket
+from threading import Thread
+import struct
 
 
 # convenience for importers
@@ -123,6 +127,15 @@ def skip_if_no_itimer(func):
     return skip_unless(has_itimer)(func)
 
 
+def skip_if_CRLock_exist(func):
+    """ Decorator that skips a test if the `_thread.RLock` class exists """
+    try:
+        from _thread import RLock
+        return skipped(func)
+    except ImportError:
+        return func
+
+
 def skip_if_no_ssl(func):
     """ Decorator that skips a test if SSL is not available."""
     try:
@@ -134,6 +147,12 @@ def skip_if_no_ssl(func):
             return func
         except ImportError:
             return skipped(func)
+
+
+def skip_if_no_ipv6(func):
+    if os.environ.get('eventlet_test_ipv6') != '1':
+        return skipped(func)
+    return func
 
 
 class TestIsTakingTooLong(Exception):
@@ -302,16 +321,25 @@ def get_database_auth():
     return retval
 
 
-def run_python(path, env=None, args=None, timeout=None):
+def run_python(path, env=None, args=None, timeout=None, pythonpath_extend=None, expect_pass=False):
     new_argv = [sys.executable]
+    if sys.version_info[:2] <= (2, 6):
+        new_argv += ['-W', 'ignore::DeprecationWarning']
     new_env = os.environ.copy()
+    new_env.setdefault('eventlet_test_in_progress', 'yes')
+    src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if path:
         path = os.path.abspath(path)
         new_argv.append(path)
-        src_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         new_env['PYTHONPATH'] = os.pathsep.join(sys.path + [src_dir])
     if env:
         new_env.update(env)
+    if pythonpath_extend:
+        new_path = [p for p in new_env.get('PYTHONPATH', '').split(os.pathsep) if p]
+        new_path.extend(
+            p if os.path.isabs(p) else os.path.join(src_dir, p) for p in pythonpath_extend
+        )
+        new_env['PYTHONPATH'] = os.pathsep.join(new_path)
     if args:
         new_argv.extend(args)
     p = subprocess.Popen(
@@ -329,21 +357,42 @@ def run_python(path, env=None, args=None, timeout=None):
         p.kill()
         output, _ = p.communicate(timeout=timeout)
         return '{0}\nFAIL - timed out'.format(output).encode()
+
+    if expect_pass:
+        if output.startswith(b'skip'):
+            parts = output.rstrip().split(b':', 1)
+            skip_args = []
+            if len(parts) > 1:
+                skip_args.append(parts[1])
+            raise SkipTest(*skip_args)
+        ok = output.rstrip() == b'pass'
+        if not ok:
+            sys.stderr.write('Program {0} output:\n---\n{1}\n---\n'.format(path, output.decode()))
+        assert ok, 'Expected single line "pass" in stdout'
+
     return output
 
 
-def run_isolated(path, prefix='tests/isolated/', env=None, args=None, timeout=None):
-    output = run_python(prefix + path, env=env, args=args, timeout=timeout).rstrip()
-    if output.startswith(b'skip'):
-        parts = output.split(b':', 1)
-        skip_args = []
-        if len(parts) > 1:
-            skip_args.append(parts[1])
-        raise SkipTest(*skip_args)
-    ok = output == b'pass'
-    if not ok:
-        sys.stderr.write('Isolated test {0} output:\n---\n{1}\n---\n'.format(path, output.decode()))
-    assert ok, 'Expected single line "pass" in stdout'
+def run_isolated(path, prefix='tests/isolated/', **kwargs):
+    kwargs.setdefault('expect_pass', True)
+    run_python(prefix + path, **kwargs)
+
+
+def check_is_timeout(obj):
+    value_text = getattr(obj, 'is_timeout', '(missing)')
+    assert obj.is_timeout, 'type={0} str={1} .is_timeout={2}'.format(type(obj), str(obj), value_text)
+
+
+@contextlib.contextmanager
+def capture_stderr():
+    stream = six.StringIO()
+    original = sys.stderr
+    try:
+        sys.stderr = stream
+        yield stream
+    finally:
+        sys.stderr = original
+        stream.seek(0)
 
 
 certificate_file = os.path.join(os.path.dirname(__file__), 'test_server.crt')
@@ -353,3 +402,86 @@ private_key_file = os.path.join(os.path.dirname(__file__), 'test_server.key')
 def test_run_python_timeout():
     output = run_python('', args=('-c', 'import time; time.sleep(0.5)'), timeout=0.1)
     assert output.endswith(b'FAIL - timed out')
+
+
+def test_run_python_pythonpath_extend():
+    code = '''import os, sys ; print('\\n'.join(sys.path))'''
+    output = run_python('', args=('-c', code), pythonpath_extend=('dira', 'dirb'))
+    assert b'/dira\n' in output
+    assert b'/dirb\n' in output
+
+
+@contextlib.contextmanager
+def dns_tcp_server(ip_to_give, request_count=1):
+    state = [0]  # request count storage writable by thread
+    host = "localhost"
+    death_pill = b"DEATH_PILL"
+
+    def extract_domain(data):
+        domain = b''
+        kind = (data[4] >> 3) & 15  # Opcode bits
+        if kind == 0:  # Standard query
+            ini = 14
+            length = data[ini]
+            while length != 0:
+                domain += data[ini + 1:ini + length + 1] + b'.'
+                ini += length + 1
+                length = data[ini]
+        return domain
+
+    def answer(data, domain):
+        domain_length = len(domain)
+        packet = b''
+        if domain:
+            # If an ip was given we return it in the answer
+            if ip_to_give:
+                packet += data[2:4] + b'\x81\x80'
+                packet += data[6:8] + data[6:8] + b'\x00\x00\x00\x00'  # Questions and answers counts
+                packet += data[14: 14 + domain_length + 1]  # Original domain name question
+                packet += b'\x00\x01\x00\x01' # Type and class
+                packet += b'\xc0\x0c\x00\x01'  # TTL
+                packet += b'\x00\x01'
+                packet += b'\x00\x00\x00\x08'
+                packet += b'\x00\x04' # Resource data length -> 4 bytes
+                packet += bytearray(int(x) for x in ip_to_give.split("."))
+            else:
+                packet += data[2:4] + b'\x85\x80'
+                packet += data[6:8] + b'\x00\x00' + b'\x00\x00\x00\x00'  # Questions and answers counts
+                packet += data[14: 14 + domain_length + 1]  # Original domain name question
+                packet += b'\x00\x01\x00\x01'  # Type and class
+
+        sz = struct.pack('>H', len(packet))
+        return sz + packet
+
+    def serve(server_socket):  # thread target
+        client_sock, address = server_socket.accept()
+        state[0] += 1
+        if state[0] <= request_count:
+            data = bytearray(client_sock.recv(1024))
+            if data == death_pill:
+                client_sock.close()
+                return
+
+            domain = extract_domain(data)
+            client_sock.sendall(answer(data, domain))
+        client_sock.close()
+
+    # Server starts
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.bind((host, 0))
+    server_socket.listen(5)
+    server_addr = server_socket.getsockname()
+
+    thread = Thread(target=serve, args=(server_socket, ))
+    thread.start()
+
+    yield server_addr
+
+    # Stop the server
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect(server_addr)
+    client.send(death_pill)
+    client.close()
+    thread.join()
+    server_socket.close()

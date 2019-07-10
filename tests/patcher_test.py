@@ -3,7 +3,7 @@ import shutil
 import sys
 import tempfile
 
-from eventlet.support import six
+import six
 import tests
 
 
@@ -82,26 +82,9 @@ class ImportPatched(ProcessBase):
         assert 'eventlet.green.urllib' in lines[2], repr(output)
         assert 'eventlet.green.httplib' not in lines[2], repr(output)
 
-    def test_import_patched_defaults(self):
-        self.write_to_tempfile("base", """
-import socket
-try:
-    import urllib.request as urllib
-except ImportError:
-    import urllib
-print("base {0} {1}".format(socket, urllib))""")
 
-        new_mod = """
-from eventlet import patcher
-base = patcher.import_patched('base')
-print("newmod {0} {1} {2}".format(base, base.socket, base.urllib.socket.socket))
-"""
-        self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod.py')
-        assert lines[0].startswith('base'), repr(output)
-        assert lines[1].startswith('newmod'), repr(output)
-        assert 'eventlet.green.socket' in lines[1], repr(output)
-        assert 'GreenSocket' in lines[1], repr(output)
+def test_import_patched_defaults():
+    tests.run_isolated('patcher_import_patched_defaults.py')
 
 
 class MonkeyPatch(ProcessBase):
@@ -226,7 +209,7 @@ def test_monkey_patch_threading():
     tickcount = [0]
 
     def tick():
-        from eventlet.support import six
+        import six
         for i in six.moves.range(1000):
             tickcount[0] += 1
             eventlet.sleep()
@@ -328,23 +311,6 @@ print(len(_threading._active))
         assert lines[0].startswith('<Thread'), lines[0]
         assert lines[1] == '1', lines
         assert lines[2] == '1', lines
-
-    def test_threading(self):
-        new_mod = """import eventlet
-eventlet.monkey_patch()
-import threading
-def test():
-    print(repr(threading.currentThread()))
-t = threading.Thread(target=test)
-t.start()
-t.join()
-print(len(threading._active))
-"""
-        self.write_to_tempfile("newmod", new_mod)
-        output, lines = self.launch_subprocess('newmod.py')
-        self.assertEqual(len(lines), 3, "\n".join(lines))
-        assert lines[0].startswith('<_MainThread'), lines[0]
-        self.assertEqual(lines[1], "1", lines[1])
 
     def test_tpool(self):
         new_mod = """import eventlet
@@ -510,6 +476,11 @@ def test_patcher_existing_locks_locked():
     tests.run_isolated('patcher_existing_locks_locked.py')
 
 
+@tests.skip_if_CRLock_exist
+def test_patcher_existing_locks_unlocked():
+    tests.run_isolated('patcher_existing_locks_unlocked.py')
+
+
 def test_importlib_lock():
     tests.run_isolated('patcher_importlib_lock.py')
 
@@ -532,3 +503,7 @@ def test_blocking_select_methods_are_deleted():
 
 def test_regular_file_readall():
     tests.run_isolated('regular_file_readall.py')
+
+
+def test_threading_current():
+    tests.run_isolated('patcher_threading_current.py')

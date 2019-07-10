@@ -13,15 +13,11 @@ from eventlet.greenio import (
     set_nonblocking, GreenSocket, CONNECT_ERR, CONNECT_SUCCESS,
 )
 from eventlet.hubs import trampoline, IOClosed
-from eventlet.support import get_errno, PY33, six
+from eventlet.support import get_errno, PY33
+import six
 orig_socket = __import__('socket')
 socket = orig_socket.socket
-if sys.version_info >= (2, 7):
-    has_ciphers = True
-    timeout_exc = SSLError
-else:
-    has_ciphers = False
-    timeout_exc = orig_socket.timeout
+timeout_exc = SSLError
 
 __patched__ = [
     'SSLSocket', 'SSLContext', 'wrap_socket', 'sslwrap_simple',
@@ -215,13 +211,7 @@ class GreenSSLSocket(_original_sslsocket):
                 raise ValueError(
                     "non-zero flags not allowed in calls to %s() on %s" %
                     plain_socket_function.__name__, self.__class__)
-            if sys.version_info < (2, 7) and into:
-                # Python 2.6 SSLSocket.read() doesn't support reading into
-                # a given buffer so we need to emulate
-                data = self.read(nbytes)
-                buffer_[:len(data)] = data
-                read = len(data)
-            elif into:
+            if into:
                 read = self.read(nbytes, buffer_)
             else:
                 read = self.read(nbytes)
@@ -325,7 +315,7 @@ class GreenSSLSocket(_original_sslsocket):
         else:
             sslobj = sslwrap(self._sock, server_side, self.keyfile, self.certfile,
                              self.cert_reqs, self.ssl_version,
-                             self.ca_certs, *([self.ciphers] if has_ciphers else []))
+                             self.ca_certs, *self.ciphers)
 
         try:
             # This is added in Python 3.5, http://bugs.python.org/issue21965
@@ -400,6 +390,26 @@ if hasattr(__ssl, 'SSLContext'):
 
         def wrap_socket(self, sock, *a, **kw):
             return GreenSSLSocket(sock, *a, _context=self, **kw)
+
+        # https://github.com/eventlet/eventlet/issues/371
+        # Thanks to Gevent developers for sharing patch to this problem.
+        if hasattr(_original_sslcontext.options, 'setter'):
+            # In 3.6, these became properties. They want to access the
+            # property __set__ method in the superclass, and they do so by using
+            # super(SSLContext, SSLContext). But we rebind SSLContext when we monkey
+            # patch, which causes infinite recursion.
+            # https://github.com/python/cpython/commit/328067c468f82e4ec1b5c510a4e84509e010f296
+            @_original_sslcontext.options.setter
+            def options(self, value):
+                super(_original_sslcontext, _original_sslcontext).options.__set__(self, value)
+
+            @_original_sslcontext.verify_flags.setter
+            def verify_flags(self, value):
+                super(_original_sslcontext, _original_sslcontext).verify_flags.__set__(self, value)
+
+            @_original_sslcontext.verify_mode.setter
+            def verify_mode(self, value):
+                super(_original_sslcontext, _original_sslcontext).verify_mode.__set__(self, value)
 
     SSLContext = GreenSSLContext
 

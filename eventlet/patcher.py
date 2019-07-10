@@ -1,7 +1,8 @@
 import imp
 import sys
 
-from eventlet.support import six
+import eventlet
+import six
 
 
 __all__ = ['inject', 'import_patched', 'monkey_patch', 'is_monkey_patched']
@@ -222,6 +223,16 @@ def monkey_patch(**on):
 
     It's safe to call monkey_patch multiple times.
     """
+
+    # Workaround for import cycle observed as following in monotonic
+    # RuntimeError: no suitable implementation for this system
+    # see https://github.com/eventlet/eventlet/issues/401#issuecomment-325015989
+    #
+    # Make sure the hub is completely imported before any
+    # monkey-patching, or we risk recursion if the process of importing
+    # the hub calls into monkey-patched modules.
+    eventlet.hubs.get_hub()
+
     accepted_args = set(('os', 'select', 'socket',
                          'thread', 'time', 'psycopg', 'MySQLdb',
                          'builtins', 'subprocess'))
@@ -358,7 +369,7 @@ def _fix_py2_rlock(rlock, tid):
     rlock._RLock__block = new
     if old.locked():
         new.acquire()
-    rlock._RLock__owner = tid
+        rlock._RLock__owner = tid
 
 
 def _fix_py3_rlock(old):
