@@ -7,7 +7,7 @@ Last-Update: 2019-01-22
 
 --- a/eventlet/green/ssl.py
 +++ b/eventlet/green/ssl.py
-@@ -3,11 +3,10 @@
+@@ -3,8 +3,6 @@
  from eventlet.patcher import slurp_properties
  slurp_properties(__ssl, globals(), srckeys=dir(__ssl))
  
@@ -16,11 +16,7 @@ Last-Update: 2019-01-22
  import sys
  import time
  
-+import imp
- from eventlet import greenio
- from eventlet.greenio import (
-     set_nonblocking, GreenSocket, CONNECT_ERR, CONNECT_SUCCESS,
-@@ -15,6 +14,8 @@
+@@ -15,6 +13,8 @@
  from eventlet.hubs import trampoline, IOClosed
  from eventlet.support import get_errno, PY33
  import six
@@ -29,7 +25,7 @@ Last-Update: 2019-01-22
  orig_socket = __import__('socket')
  socket = orig_socket.socket
  timeout_exc = SSLError
-@@ -25,6 +26,20 @@
+@@ -25,6 +25,20 @@
  
  _original_sslsocket = __ssl.SSLSocket
  _original_wrap_socket = __ssl.wrap_socket
@@ -50,7 +46,7 @@ Last-Update: 2019-01-22
  
  
  class GreenSSLSocket(_original_sslsocket):
-@@ -41,16 +56,43 @@
+@@ -41,16 +55,43 @@
      settimeout(), and to close/reopen the connection when a timeout
      occurs at an unexpected juncture in the code.
      """
@@ -96,7 +92,7 @@ Last-Update: 2019-01-22
          self.act_non_blocking = sock.act_non_blocking
  
          if six.PY2:
-@@ -58,42 +100,12 @@
+@@ -58,42 +99,12 @@
              # this assignment
              self._timeout = sock.gettimeout()
  
@@ -140,7 +136,7 @@ Last-Update: 2019-01-22
          # the superclass initializer trashes the methods so we remove
          # the local-object versions of them and let the actual class
          # methods shine through
-@@ -396,6 +408,7 @@
+@@ -396,6 +407,7 @@
      def dup(self):
          raise NotImplementedError("Can't dup an ssl object")
  

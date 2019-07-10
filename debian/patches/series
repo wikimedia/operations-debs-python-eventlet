@@ -11,3 +11,4 @@
 0013-New_test_crt.patch
 0014-Fix-for-Python-3.7.patch
 0015-more-python3.7-fixes.patch
+0016-imp-rename.patch
