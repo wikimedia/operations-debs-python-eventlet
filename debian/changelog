@@ -2,6 +2,7 @@ python-eventlet (0.20.0-7) UNRELEASED; urgency=medium
 
   * Bump debhelper compat level to 12 and use debhelper-compat
   * Standards version is 4.4.0 now (no changes)
+  * d/copyright: Bump my copyright year.
 
  -- Ondřej Nový <onovy@debian.org>  Wed, 10 Jul 2019 13:34:35 +0200
 
