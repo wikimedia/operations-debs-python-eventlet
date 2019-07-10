@@ -10,6 +10,7 @@ python-eventlet (0.24.1-1) UNRELEASED; urgency=medium
     - 0011-Avoid-dependency-on-enum-compat.patch:
        Drop, applied upstream
     - Rebased others
+  * Add python{,3}-monotonic and python{,3}-six to B-D
 
  -- Ondřej Nový <onovy@debian.org>  Wed, 10 Jul 2019 13:34:35 +0200
 
