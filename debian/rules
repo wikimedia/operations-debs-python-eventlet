@@ -2,6 +2,7 @@
 
 export PYBUILD_NAME=eventlet
 export TRAVIS=true
+export NOSE_PROCESSES=-1
 
 %:
 	dh $@ --with python3,sphinxdoc --buildsystem=pybuild
