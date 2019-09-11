@@ -12,9 +12,11 @@ Last-Update: 2017-03-16
  tests/wsgi_test.py | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/tests/wsgi_test.py
-+++ b/tests/wsgi_test.py
-@@ -1507,12 +1507,12 @@
+Index: python-eventlet/tests/wsgi_test.py
+===================================================================
+--- python-eventlet.orig/tests/wsgi_test.py
++++ python-eventlet/tests/wsgi_test.py
+@@ -1611,12 +1611,12 @@ class TestHttpd(_TestBase):
          request_thread.wait()
          server_sock.close()
  

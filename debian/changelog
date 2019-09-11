@@ -1,6 +1,11 @@
 python-eventlet (0.25.1-1) experimental; urgency=medium
 
   * New upstream release.
+  * Refresh patches.
+  * Removed patches applied upstream:
+    - 0013-New_test_crt.patch
+    - 0014-Fix-for-Python-3.7.patch
+    - 0015-more-python3.7-fixes.patch
 
  -- Thomas Goirand <zigo@debian.org>  Wed, 11 Sep 2019 17:39:29 +0200
 

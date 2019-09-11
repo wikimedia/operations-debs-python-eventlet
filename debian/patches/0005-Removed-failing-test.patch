@@ -10,9 +10,11 @@ Last-Update: 2016-10-07
  tests/patcher_test.py | 22 ----------------------
  1 file changed, 22 deletions(-)
 
---- a/tests/patcher_test.py
-+++ b/tests/patcher_test.py
-@@ -83,9 +83,6 @@
+Index: python-eventlet/tests/patcher_test.py
+===================================================================
+--- python-eventlet.orig/tests/patcher_test.py
++++ python-eventlet/tests/patcher_test.py
+@@ -83,9 +83,6 @@ class ImportPatched(ProcessBase):
          assert 'eventlet.green.httplib' not in lines[2], repr(output)
  
  
@@ -20,5 +22,5 @@ Last-Update: 2016-10-07
 -    tests.run_isolated('patcher_import_patched_defaults.py')
 -
  
- class MonkeyPatch(ProcessBase):
-     def test_patched_modules(self):
+ def test_import_patched_handles_sub_modules():
+     tests.run_isolated('test_sub_module_in_import_patched/test.py')

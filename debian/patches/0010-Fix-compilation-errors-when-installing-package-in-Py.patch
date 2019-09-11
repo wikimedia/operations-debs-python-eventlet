@@ -8,9 +8,11 @@ Subject: Fix compilation errors when installing package in Python 2.7
  eventlet/green/http/cookiejar.py |  3 ++-
  2 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/eventlet/green/http/client.py
-+++ b/eventlet/green/http/client.py
-@@ -121,6 +121,7 @@
+Index: python-eventlet/eventlet/green/http/client.py
+===================================================================
+--- python-eventlet.orig/eventlet/green/http/client.py
++++ python-eventlet/eventlet/green/http/client.py
+@@ -121,6 +121,7 @@ Unread-response                _CS_IDLE
  Req-started-unread-response    _CS_REQ_STARTED    <response_class>
  Req-sent-unread-response       _CS_REQ_SENT       <response_class>
  """
@@ -18,7 +20,7 @@ Subject: Fix compilation errors when installing package in Python 2.7
  
  import email.parser
  import email.message
-@@ -192,8 +193,8 @@
+@@ -192,8 +193,8 @@ _MAXHEADERS = 100
  # the patterns for both name and value are more leniant than RFC
  # definitions to allow for backwards compatibility
  # Eventlet change: match used instead of fullmatch for Python 3.3 compatibility
@@ -29,7 +31,7 @@ Subject: Fix compilation errors when installing package in Python 2.7
  
  # We always set the Content-Length header for these methods because some
  # servers will otherwise respond with a 411
-@@ -205,14 +206,16 @@
+@@ -205,14 +206,16 @@ def _encode(data, name='data'):
      try:
          return data.encode("latin-1")
      except UnicodeEncodeError as err:
@@ -48,7 +50,7 @@ Subject: Fix compilation errors when installing package in Python 2.7
  
  
  class HTTPMessage(email.message.Message):
-@@ -1446,7 +1449,7 @@
+@@ -1456,7 +1459,7 @@ else:
  
          def __init__(self, host, port=None, key_file=None, cert_file=None,
                       timeout=socket._GLOBAL_DEFAULT_TIMEOUT,
@@ -57,9 +59,11 @@ Subject: Fix compilation errors when installing package in Python 2.7
                       check_hostname=None):
              super(HTTPSConnection, self).__init__(host, port, timeout,
                                                    source_address)
---- a/eventlet/green/http/cookiejar.py
-+++ b/eventlet/green/http/cookiejar.py
-@@ -1266,7 +1266,8 @@
+Index: python-eventlet/eventlet/green/http/cookiejar.py
+===================================================================
+--- python-eventlet.orig/eventlet/green/http/cookiejar.py
++++ python-eventlet/eventlet/green/http/cookiejar.py
+@@ -1266,7 +1266,8 @@ def deepvalues(mapping):
              pass
          else:
              mapping = True
