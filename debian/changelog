@@ -1,6 +1,7 @@
-python-eventlet (0.25.1-2) UNRELEASED; urgency=medium
+python-eventlet (0.25.1-2) unstable; urgency=medium
 
   * Bump Standards-Version to 4.4.1.
+  * Uploading to unstable.
 
  -- Ondřej Nový <onovy@debian.org>  Fri, 18 Oct 2019 15:56:59 +0200
 
