@@ -1,10 +1,10 @@
-python-eventlet (0.25.2-1) UNRELEASED; urgency=medium
+python-eventlet (0.25.2-1) unstable; urgency=medium
 
   * New upstream release (Closes: #954499).
   * Add Rules-Requires-Root: no.
   * Bump Standards-Version to 4.5.0.
 
- -- Ondřej Nový <onovy@debian.org>  Tue, 21 Apr 2020 10:53:58 +0200
+ -- Ondřej Nový <onovy@debian.org>  Tue, 21 Apr 2020 10:57:30 +0200
 
 python-eventlet (0.25.1-2) unstable; urgency=medium
 
