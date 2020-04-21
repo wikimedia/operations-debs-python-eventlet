@@ -1,6 +1,7 @@
 python-eventlet (0.25.2-1) UNRELEASED; urgency=medium
 
   * New upstream release (Closes: #954499).
+  * Add Rules-Requires-Root: no.
 
  -- Ondřej Nový <onovy@debian.org>  Tue, 21 Apr 2020 10:53:58 +0200
 
