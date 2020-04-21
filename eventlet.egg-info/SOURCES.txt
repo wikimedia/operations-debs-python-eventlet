@@ -5,6 +5,9 @@ NEWS
 README.rst
 setup.cfg
 setup.py
+benchmarks/__init__.py
+benchmarks/localhost_socket.py
+benchmarks/spawn.py
 doc/Makefile
 doc/authors.rst
 doc/basic_usage.rst
