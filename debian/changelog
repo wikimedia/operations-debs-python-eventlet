@@ -12,6 +12,7 @@ python-eventlet (0.26.1-1) UNRELEASED; urgency=medium
     contact address.
   * d/control: Update Vcs-* fields with new Debian Python Team Salsa
     layout.
+  * d/patches: Rebase.
 
  -- Debian Janitor <janitor@jelmer.uk>  Mon, 27 Apr 2020 09:46:49 +0000
 

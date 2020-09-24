@@ -10,11 +10,9 @@ Origin: https://github.com/eventlet/eventlet/commit/de06878e5a295bfbbddca0048c34
  2 files changed, 36 insertions(+)
  create mode 100644 tests/isolated/green_ssl_py36_properties.py
 
-Index: python-eventlet/eventlet/green/ssl.py
-===================================================================
---- python-eventlet.orig/eventlet/green/ssl.py
-+++ python-eventlet/eventlet/green/ssl.py
-@@ -457,6 +457,26 @@ if hasattr(__ssl, 'SSLContext'):
+--- a/eventlet/green/ssl.py
++++ b/eventlet/green/ssl.py
+@@ -467,6 +467,26 @@
              def verify_mode(self, value):
                  super(_original_sslcontext, _original_sslcontext).verify_mode.__set__(self, value)
  
