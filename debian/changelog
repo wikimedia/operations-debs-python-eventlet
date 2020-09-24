@@ -1,4 +1,4 @@
-python-eventlet (0.25.2-2) UNRELEASED; urgency=medium
+python-eventlet (0.26.1-1) UNRELEASED; urgency=medium
 
   [ Debian Janitor ]
   * Use secure URI in Homepage field.
@@ -6,6 +6,7 @@ python-eventlet (0.25.2-2) UNRELEASED; urgency=medium
     present in machine-readable debian/copyright).
 
   [ Ondřej Nový ]
+  * New upstream release.
   * d/copyright: Bump my copyright year.
   * d/control: Update Maintainer field with new Debian Python Team
     contact address.
