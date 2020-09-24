@@ -9,6 +9,8 @@ python-eventlet (0.25.2-2) UNRELEASED; urgency=medium
   * d/copyright: Bump my copyright year.
   * d/control: Update Maintainer field with new Debian Python Team
     contact address.
+  * d/control: Update Vcs-* fields with new Debian Python Team Salsa
+    layout.
 
  -- Debian Janitor <janitor@jelmer.uk>  Mon, 27 Apr 2020 09:46:49 +0000
 
