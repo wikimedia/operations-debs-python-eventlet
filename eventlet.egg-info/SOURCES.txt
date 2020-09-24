@@ -227,6 +227,7 @@ tests/isolated/patcher_socketserver_selectors.py
 tests/isolated/patcher_threading_condition.py
 tests/isolated/patcher_threading_current.py
 tests/isolated/patcher_threading_join.py
+tests/isolated/patcher_threadpoolexecutor.py
 tests/isolated/regular_file_readall.py
 tests/isolated/socket_resolve_green.py
 tests/isolated/subprocess_exception_identity.py
