@@ -11,3 +11,4 @@
 #0014-Fix-for-Python-3.7.patch
 #0015-more-python3.7-fixes.patch
 0016-imp-rename.patch
+Replace-dnspython-_compute_expiration-by-_compute_times.patch

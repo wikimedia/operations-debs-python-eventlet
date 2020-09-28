@@ -14,7 +14,10 @@ python-eventlet (0.26.1-1) UNRELEASED; urgency=medium
     layout.
   * d/patches: Rebase.
 
- -- Debian Janitor <janitor@jelmer.uk>  Mon, 27 Apr 2020 09:46:49 +0000
+  [ Thomas Goirand ]
+  * Add Replace-dnspython-_compute_expiration-by-_compute_times.patch.
+
+ -- Thomas Goirand <zigo@debian.org>  Mon, 28 Sep 2020 17:29:05 +0200
 
 python-eventlet (0.25.2-1) unstable; urgency=medium
 
