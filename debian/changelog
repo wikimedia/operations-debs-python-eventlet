@@ -1,4 +1,4 @@
-python-eventlet (0.26.1-1) UNRELEASED; urgency=medium
+python-eventlet (0.26.1-1) experimental; urgency=medium
 
   [ Debian Janitor ]
   * Use secure URI in Homepage field.
