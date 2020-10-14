@@ -1,3 +1,9 @@
+python-eventlet (0.26.1-3) unstable; urgency=medium
+
+  * Add remove-non-deterministic-test_communicate_with_poll.patch.
+
+ -- Thomas Goirand <zigo@debian.org>  Wed, 14 Oct 2020 09:37:19 +0200
+
 python-eventlet (0.26.1-2) unstable; urgency=medium
 
   * Uploading to unstable.
