@@ -515,3 +515,11 @@ def test_threading_current():
 
 def test_threadpoolexecutor():
     tests.run_isolated('patcher_threadpoolexecutor.py')
+
+
+def test_fork_after_monkey_patch():
+    tests.run_isolated('patcher_fork_after_monkey_patch.py')
+
+
+def test_builtin():
+    tests.run_isolated('patcher_builtin.py')
