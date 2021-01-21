@@ -14,3 +14,4 @@
 Replace-dnspython-_compute_expiration-by-_compute_times.patch
 fix-test_noraise_dns_tcp.patch
 remove-non-deterministic-test_communicate_with_poll.patch
+0017-py39-Add-_at_fork_reinit-method-to-Semaphores.patch
