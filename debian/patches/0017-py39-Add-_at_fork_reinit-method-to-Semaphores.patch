@@ -1,6 +1,7 @@
 From: Tim Burke <tim.burke@gmail.com>
 Date: Mon, 2 Nov 2020 16:09:46 -0800
 Subject: py39: Add _at_fork_reinit method to Semaphores
+Origin: upstream, https://github.com/eventlet/eventlet/pull/664
 
 CPython expects to be able to call such a method on RLocks, Conditions,
 and Events in threading; since we may monkey-patch threading to use

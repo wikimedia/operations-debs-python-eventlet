@@ -1,6 +1,7 @@
 From: Sergey Shepelev <temotor@gmail.com>
 Date: Wed, 2 Dec 2020 01:10:02 +0300
 Subject: pyopenssl tsafe module was deprecated and removed in v20.0.0
+Origin: upstream, https://github.com/eventlet/eventlet/pull/672
 
 https://github.com/eventlet/eventlet/issues/671
 https://github.com/pyca/pyopenssl/pull/913
