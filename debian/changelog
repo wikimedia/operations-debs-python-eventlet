@@ -2,6 +2,7 @@ python-eventlet (0.26.1-4) unstable; urgency=medium
 
   * Import upstream patch to fix Semaphore objects on python3.9
   * Import upstream patch to fix build against pyOpenSSL >= 20 (Closes: #980639)
+  * autopkgtest: run test suite
 
  -- Antonio Terceiro <terceiro@debian.org>  Thu, 21 Jan 2021 09:34:22 -0300
 
