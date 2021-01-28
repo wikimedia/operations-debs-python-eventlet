@@ -6,10 +6,6 @@
 0006-Patch-out-intersphinx.patch
 0008-Disable-test_server_connection_timeout_exception.patch
 0009-Removed-test_urllib-that-is-failing-in-py36.patch
-0010-Fix-compilation-errors-when-installing-package-in-Py.patch
-0012-ssl-RecursionError-on-Python3.6.patch
-#0014-Fix-for-Python-3.7.patch
-#0015-more-python3.7-fixes.patch
 0016-imp-rename.patch
 Replace-dnspython-_compute_expiration-by-_compute_times.patch
 fix-test_noraise_dns_tcp.patch
