@@ -1,9 +1,11 @@
-python-eventlet (0.26.1-5) UNRELEASED; urgency=medium
+python-eventlet (0.26.1-5) unstable; urgency=medium
 
   * Drop 0012-ssl-RecursionError-on-Python3.6.patch, which is destroying SSL
     since it got fixed upstream.
   * Drop 0010-Fix-compilation-errors-when-installing-package-in-Py.patch, as
     we don't support Python 2.7 anymore.
+  * Add fix-infinte-recursion-in-ssl.patch, which should fix the compat with
+    dnspython 2.x.
 
  -- Thomas Goirand <zigo@debian.org>  Thu, 28 Jan 2021 12:26:06 +0100
 
