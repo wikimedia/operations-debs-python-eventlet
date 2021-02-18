@@ -1,3 +1,13 @@
+python-eventlet (0.26.1-6) unstable; urgency=medium
+
+  * Hack a modified debian/greendns.py with filename=None instead of
+    filename='/etc/resolv.conf' to replace eventlet/support/greendns.py when
+    building the sphinx doc, to avoid crash (Closes: #981720).
+    Beware that future version of Eventlet will need updated files in the
+    debian folder.
+
+ -- Thomas Goirand <zigo@debian.org>  Thu, 18 Feb 2021 17:07:30 +0100
+
 python-eventlet (0.26.1-5) unstable; urgency=medium
 
   * Drop 0012-ssl-RecursionError-on-Python3.6.patch, which is destroying SSL
