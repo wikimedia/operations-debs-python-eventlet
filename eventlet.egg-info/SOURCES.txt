@@ -225,6 +225,7 @@ tests/isolated/patcher_existing_locks_unlocked.py
 tests/isolated/patcher_fork_after_monkey_patch.py
 tests/isolated/patcher_import_patched_defaults.py
 tests/isolated/patcher_importlib_lock.py
+tests/isolated/patcher_open_kwargs.py
 tests/isolated/patcher_socketserver_selectors.py
 tests/isolated/patcher_threading_condition.py
 tests/isolated/patcher_threading_current.py
