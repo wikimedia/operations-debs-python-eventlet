@@ -13,3 +13,4 @@ remove-non-deterministic-test_communicate_with_poll.patch
 0017-py39-Add-_at_fork_reinit-method-to-Semaphores.patch
 0018-pyopenssl-tsafe-module-was-deprecated-and-removed-in.patch
 fix-infinte-recursion-in-ssl.patch
+CVE-2021-21419_websocket-Limit-maximum-uncompressed-frame-length-to-8MiB.patch
