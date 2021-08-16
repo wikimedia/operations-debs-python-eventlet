@@ -1,3 +1,11 @@
+python-eventlet (0.26.1-7) unstable; urgency=medium
+
+  * CVE-2021-21419: Malicious peer may exhaust memory on Eventlet side
+    by sending highly compressed data frame. Appled upstream patch: websocket:
+    Limit maximum uncompressed frame length to 8MiB (Closes: #988342).
+
+ -- Thomas Goirand <zigo@debian.org>  Tue, 11 May 2021 08:03:43 +0200
+
 python-eventlet (0.26.1-6) unstable; urgency=medium
 
   * Hack a modified debian/greendns.py with filename=None instead of
