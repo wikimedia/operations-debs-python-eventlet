@@ -1,3 +1,9 @@
+python-eventlet (0.30.2-2) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Thomas Goirand <zigo@debian.org>  Mon, 16 Aug 2021 12:36:09 +0200
+
 python-eventlet (0.30.2-1) experimental; urgency=medium
 
   * New upstream release.
