@@ -8,6 +8,8 @@
 0009-Removed-test_urllib-that-is-failing-in-py36.patch
 0016-imp-rename.patch
 Replace-dnspython-_compute_expiration-by-_compute_times.patch
+Check_compute_expiration_at_module_level.patch
+add_handling_for_new_dnspython_arguments.patch
 fix-test_noraise_dns_tcp.patch
 remove-non-deterministic-test_communicate_with_poll.patch
 0017-py39-Add-_at_fork_reinit-method-to-Semaphores.patch

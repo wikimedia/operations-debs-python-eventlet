@@ -1,3 +1,10 @@
+python-eventlet (0.26.1-8~wmf1) bullseye-wikimedia; urgency=medium
+
+  * Fix dnspython 2 compat
+  ** See also https://github.com/eventlet/eventlet/pull/722 and https://phabricator.wikimedia.org/T283714
+
+ -- Filippo Giunchedi <filippo@wikimedia.org>  Tue, 24 Aug 2021 14:04:54 +0200
+
 python-eventlet (0.26.1-7) unstable; urgency=medium
 
   * CVE-2021-21419: Malicious peer may exhaust memory on Eventlet side
